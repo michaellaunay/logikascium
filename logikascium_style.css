@@ -1,0 +1,8 @@
+.bg-image {
+    background-image: url('./images/IMG_20230311_095805.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    opacity: 1.25;
+  }
+  
