@@ -11,4 +11,4 @@ Je peux vous aider à mener à bien votre projet grâce à mon expertise en conc
 
 Contactez-moi dès maintenant pour discuter de votre projet et voir comment je peux vous aider à le concrétiser.
 
-[Contactez-moi](mailto:michaellaunay@logikascium)
+[Contactez-moi](mailto:michaellaunay+logikascium@gmail.com)
