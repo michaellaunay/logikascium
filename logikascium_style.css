@@ -38,7 +38,7 @@ main {
 }
 
 h1, h2 {
-  color: #65696d;
+  color: #01351b;
 }
 
 h1 {
@@ -62,7 +62,7 @@ section ul {
 /* Image de profil */
 img {
   max-width: 50%;
-  border: 5px solid #65696d;
+  border: 5px solid #012012;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
