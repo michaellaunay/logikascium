@@ -1,1 +1,0 @@
-[Le game design de la connaissance](https://youtu.be/tG3xNHzsSYI).
