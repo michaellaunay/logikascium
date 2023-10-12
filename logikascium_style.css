@@ -62,12 +62,12 @@ section ul {
 /* Image de profil */
 img {
   max-width: 50%;
-  border: 5px solid #012012;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border: 5px solid #9c4105;
+  box-shadow: 0px 4px 8px rgba(255, 81, 0, 0.1);
 }
 
-.rounded-circle {
-  border-radius: 50%;
+.rounded-id-photo {
+  border-radius: 50px;
 }
 
 /* Call to Action */
