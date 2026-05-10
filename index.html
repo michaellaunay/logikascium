@@ -3,443 +3,524 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Logikascium – Transformez vos documents en base de connaissances augmentée par l'IA</title>
+  <meta name="description" content="Logikascium transforme vos documents, archives et GED en bases de connaissances augmentées par l'IA : OCR, Markdown, RAG, recherche sémantique, workflows et assistants documentaires sourcés.">
+  <title>Logikascium – Bases de connaissances augmentées par l'IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0/css/bootstrap.min.css">
   <link rel="icon" type="image/png" href="images/favicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #0f1117;
-      --paper: #f7f5f0;
-      --accent: #1a6b4a;
-      --accent-light: #d4ede3;
-      --accent-mid: #2d9b6e;
-      --muted: #6b7280;
-      --border: #e0ddd5;
-      --code-bg: #1e2430;
-      --code-text: #a8d8b0;
+      --ink: #0d1117;
+      --ink-soft: #1c2531;
+      --paper: #f8f5ef;
+      --paper-2: #fffdf8;
+      --accent: #b8472d;
+      --accent-2: #d28e46;
+      --accent-soft: #f5dfc6;
+      --muted: #626b79;
+      --muted-2: #89919f;
+      --border: #e6dfd2;
+      --shadow: 0 24px 80px rgba(13, 17, 23, 0.10);
+      --shadow-soft: 0 16px 40px rgba(13, 17, 23, 0.07);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
     }
 
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Sora', sans-serif;
-      background-color: var(--paper);
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background:
+        radial-gradient(circle at 85% 3%, rgba(210,142,70,0.18), transparent 34rem),
+        radial-gradient(circle at 8% 0%, rgba(184,71,45,0.12), transparent 26rem),
+        var(--paper);
       color: var(--ink);
       font-size: 16px;
       line-height: 1.7;
+      text-rendering: optimizeLegibility;
     }
 
-    /* ── NAVBAR ── */
+    a { color: inherit; }
+    .container { max-width: 1160px; }
+
     .navbar {
-      background: rgba(247,245,240,0.95) !important;
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 0;
+      background: rgba(248, 245, 239, 0.86) !important;
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(230, 223, 210, 0.78);
+      padding: 0.85rem 0;
       position: sticky;
       top: 0;
       z-index: 1000;
     }
+
     .navbar-brand {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .65rem;
+      font-weight: 800;
       color: var(--ink) !important;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.04em;
+      font-size: 1.18rem;
     }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      display: inline-grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(145deg, #d28e46, #b8472d);
+      box-shadow: 0 10px 24px rgba(184,71,45,0.24);
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+    }
+
     .nav-link {
       color: var(--muted) !important;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.78rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      transition: color 0.2s;
+      letter-spacing: 0.09em;
+      transition: color .2s ease;
     }
     .nav-link:hover, .nav-link.active { color: var(--accent) !important; }
 
-    /* ── HERO ── */
+    .navbar-toggler { border: 1px solid var(--border); border-radius: 12px; }
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2813,17,23,.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    section { padding: 6rem 0; }
+    section + section { border-top: 1px solid rgba(230,223,210,0.72); }
+
     .hero {
-      padding: 7rem 0 5rem;
+      padding: 6.6rem 0 5.6rem;
       position: relative;
       overflow: hidden;
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -80px; right: -120px;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
-      opacity: 0.6;
-      pointer-events: none;
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      gap: 4rem;
+      align-items: center;
     }
-    .hero-eyebrow {
-      display: inline-block;
-      background: var(--accent-light);
+
+    .eyebrow, .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: 1rem;
       color: var(--accent);
-      font-size: 0.75rem;
-      font-weight: 700;
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      padding: 0.3rem 0.9rem;
-      border-radius: 100px;
-      margin-bottom: 1.5rem;
     }
-    .hero h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2.4rem, 5vw, 3.8rem);
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      max-width: 780px;
-      margin-bottom: 1.25rem;
+
+    .eyebrow::before, .section-label::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 6px rgba(210,142,70,.16);
     }
-    .hero h1 em {
-      font-style: italic;
-      color: var(--accent);
+
+    h1, h2.section-title, .serif {
+      font-family: 'DM Serif Display', Georgia, serif;
+      letter-spacing: -0.035em;
     }
+
+    h1 {
+      max-width: 820px;
+      margin: 0 0 1.35rem;
+      font-size: clamp(2.8rem, 7vw, 5.2rem);
+      line-height: .98;
+    }
+    h1 em { color: var(--accent); }
+
     .hero-sub {
-      font-size: 1.1rem;
+      max-width: 670px;
+      margin: 0 0 2rem;
       color: var(--muted);
-      max-width: 620px;
-      margin-bottom: 2.5rem;
+      font-size: 1.12rem;
+      line-height: 1.75;
     }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: .85rem; margin-bottom: 2.25rem; }
+
+    .btn-primary-custom,
+    .btn-outline-custom,
+    .btn-white,
+    .btn-white-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      min-height: 48px;
+      padding: .82rem 1.35rem;
+      border-radius: 999px;
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
+    }
+
     .btn-primary-custom {
       background: var(--accent);
       color: #fff;
-      border: none;
-      padding: 0.85rem 2rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 16px 34px rgba(184,71,45,.24);
     }
-    .btn-primary-custom:hover { background: #145538; transform: translateY(-1px); color:#fff; }
-    .btn-outline-custom {
-      border: 2px solid var(--ink);
-      color: var(--ink);
-      background: transparent;
-      padding: 0.85rem 2rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-    .btn-outline-custom:hover { background: var(--ink); color: var(--paper); }
+    .btn-primary-custom:hover { transform: translateY(-2px); color:#fff; background:#963820; }
 
-    /* ── SECTION FRAME ── */
-    section { padding: 5rem 0; }
-    section + section { border-top: 1px solid var(--border); }
-    .section-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
+    .btn-outline-custom {
+      color: var(--ink);
+      background: rgba(255,255,255,.46);
+      border: 1px solid var(--border);
     }
+    .btn-outline-custom:hover { transform: translateY(-2px); color: var(--accent); border-color: rgba(184,71,45,.38); background: #fff; }
+
+    .hero-proof {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .8rem;
+      max-width: 700px;
+    }
+    .proof-item {
+      padding: .95rem 1rem;
+      background: rgba(255,255,255,.58);
+      border: 1px solid rgba(230,223,210,.9);
+      border-radius: 16px;
+    }
+    .proof-item strong { display:block; font-size: 1rem; color: var(--ink); line-height: 1.2; }
+    .proof-item span { display:block; color: var(--muted); font-size: .78rem; line-height: 1.45; margin-top: .2rem; }
+
+    .hero-card {
+      position: relative;
+      padding: 1.35rem;
+      background: rgba(255,253,248,.78);
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(210,142,70,.15), transparent 45%);
+      pointer-events: none;
+    }
+    .terminal {
+      position: relative;
+      background: #0f1622;
+      border-radius: 22px;
+      color: #c7f6d7;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    .terminal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .95rem 1.1rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: #7d8796;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+    .dots { display:flex; gap:.4rem; }
+    .dots span { width: 10px; height: 10px; border-radius: 999px; background: #d28e46; opacity: .8; }
+    .terminal-body {
+      padding: 1.35rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: .82rem;
+      line-height: 1.9;
+    }
+    .terminal-body .muted { color: #6e7a8e; }
+    .terminal-body .accent { color: #1a7c3b; font-weight: 800; }
+
+    .mini-card-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .85rem;
+      margin-top: .85rem;
+    }
+    .mini-card {
+      padding: 1rem;
+      border-radius: 16px;
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(230,223,210,.9);
+    }
+    .mini-card strong { display:block; font-size: .88rem; margin-bottom: .25rem; }
+    .mini-card span { display:block; color: var(--muted); font-size: .76rem; line-height: 1.5; }
+
     h2.section-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-      letter-spacing: -0.02em;
-      margin-bottom: 1rem;
-      line-height: 1.2;
+      font-size: clamp(2rem, 4.5vw, 3.25rem);
+      line-height: 1.06;
+      margin: 0 0 1rem;
     }
     .section-intro {
       color: var(--muted);
-      max-width: 680px;
-      font-size: 1.05rem;
+      max-width: 760px;
+      font-size: 1.06rem;
+      margin-bottom: 0;
     }
 
-    /* ── PROBLEM BLOCK ── */
-    .problem-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.5rem;
-      margin-top: 3rem;
-    }
-    .problem-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.75rem;
-    }
-    .problem-card .icon {
-      font-size: 1.6rem;
-      margin-bottom: 0.75rem;
-    }
-    .problem-card h4 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 0.4rem;
-    }
-    .problem-card p { font-size: 0.88rem; color: var(--muted); margin: 0; }
-
-    /* ── PIPELINE BLOCK ── */
-    .pipeline {
-      background: var(--code-bg);
-      border-radius: 12px;
-      padding: 2.5rem;
-      color: var(--code-text);
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      line-height: 2;
-      position: relative;
-      overflow: hidden;
-    }
-    .pipeline::before {
-      content: '// pipeline documentaire';
-      position: absolute; top: 1rem; right: 1.5rem;
-      color: #4a5568; font-size: 0.78rem;
-    }
-    .pipeline .arrow { color: #6b7280; }
-    .pipeline .highlight { color: #68d39f; font-weight: 700; }
-
-    /* ── SERVICES GRID ── */
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-    .service-card {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 2rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .service-card:hover {
-      border-color: var(--accent-mid);
-      box-shadow: 0 4px 24px rgba(26,107,74,0.08);
-    }
-    .service-num {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 0.6rem;
-    }
-    .service-card h3 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.25rem;
-      margin-bottom: 0.6rem;
-    }
-    .service-card p { font-size: 0.88rem; color: var(--muted); margin: 0; }
-
-    /* ── USE CASES ── */
-    .usecase-list { margin-top: 2.5rem; }
-    .usecase-item {
-      display: flex;
-      gap: 1.5rem;
-      padding: 2rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .usecase-item:last-child { border-bottom: none; }
-    .usecase-num {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2.5rem;
-      color: var(--accent-light);
-      line-height: 1;
-      min-width: 50px;
-    }
-    .usecase-item h4 {
-      font-weight: 700;
-      margin-bottom: 0.3rem;
-    }
-    .usecase-item p { font-size: 0.9rem; color: var(--muted); margin: 0; }
-
-    /* ── METHODE ── */
+    .problem-grid,
+    .services-grid,
+    .why-grid,
     .methode-steps {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
+      gap: 1.25rem;
       margin-top: 3rem;
-      counter-reset: step;
     }
+    .problem-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .services-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .why-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .methode-steps { grid-template-columns: repeat(3, minmax(0,1fr)); counter-reset: step; }
+
+    .problem-card,
+    .service-card,
+    .why-card,
     .methode-step {
-      counter-increment: step;
-      padding: 1.75rem;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
       position: relative;
+      background: rgba(255,253,248,.72);
+      border: 1px solid rgba(230,223,210,.9);
+      border-radius: var(--radius-md);
+      padding: 1.55rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
-    .methode-step::before {
-      content: counter(step, decimal-leading-zero);
-      position: absolute;
-      top: -0.75rem; left: 1.5rem;
-      background: var(--accent);
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      letter-spacing: 0.04em;
+    .problem-card:hover,
+    .service-card:hover,
+    .why-card:hover,
+    .methode-step:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-soft);
+      border-color: rgba(210,142,70,.40);
     }
-    .methode-step h4 { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; }
-    .methode-step p { font-size: 0.85rem; color: var(--muted); margin: 0; }
 
-    /* ── WHY US ── */
-    .why-grid {
+    .icon-badge {
+      width: 42px;
+      height: 42px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.5rem;
-      margin-top: 3rem;
-    }
-    .why-card {
-      padding: 1.75rem;
-      border-left: 3px solid var(--accent);
-      background: #fff;
-      border-radius: 0 10px 10px 0;
-    }
-    .why-card h4 { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; }
-    .why-card p { font-size: 0.85rem; color: var(--muted); margin: 0; }
-
-    /* ── QUI SOMMES-NOUS ── */
-    .about-section { background: var(--ink); color: var(--paper); }
-    .about-section .section-label { color: var(--accent-mid); }
-    .about-section h2.section-title { color: var(--paper); }
-    .about-section .section-intro { color: #9ca3af; }
-    .about-section a { color: var(--accent-mid); }
-    .about-profile {
-      display: flex;
-      gap: 2.5rem;
-      align-items: flex-start;
-      margin-top: 3rem;
-    }
-    .about-profile img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      flex-shrink: 0;
-      border: 3px solid var(--accent);
-    }
-    .about-profile-info h3 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.6rem;
-      margin-bottom: 0.2rem;
-    }
-    .about-profile-info .role {
-      color: var(--accent-mid);
-      font-size: 0.88rem;
-      font-weight: 600;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 900;
       margin-bottom: 1rem;
     }
-    .about-profile-info p { color: #9ca3af; font-size: 0.9rem; }
-    .about-achievements {
+    .problem-card h4,
+    .service-card h3,
+    .why-card h4,
+    .methode-step h4 { font-size: 1rem; font-weight: 800; margin-bottom: .45rem; letter-spacing: -.02em; }
+    .service-card h3 { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.45rem; font-weight: 400; line-height: 1.1; }
+    .problem-card p,
+    .service-card p,
+    .why-card p,
+    .methode-step p { color: var(--muted); font-size: .9rem; margin: 0; line-height: 1.65; }
+    .service-num { color: var(--accent); font-size: .75rem; font-weight: 900; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.75rem; }
+
+    .pipeline-wrap {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-top: 2.5rem;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+      gap: 3rem;
+      align-items: center;
+      margin-top: 3rem;
     }
-    .achievement {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      padding: 1.2rem 1.5rem;
+    .pipeline {
+      background: #101722;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 24px;
+      padding: 1.35rem;
+      box-shadow: var(--shadow);
     }
-    .achievement .val {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.8rem;
-      color: var(--accent-mid);
-      line-height: 1;
-      margin-bottom: 0.3rem;
+    .pipeline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #0b111b;
+      color: #b7eec8;
+      border-radius: 18px;
+      padding: 1.35rem;
+      font-size: .86rem;
+      line-height: 1.95;
+      overflow: auto;
     }
-    .achievement .lbl { font-size: 0.8rem; color: #9ca3af; }
+    .pipeline-code .arrow { color: #687386; }
+    .pipeline-code .highlight { color: #68e4a4; font-weight: 900; }
+    .pipeline-caption { color: #8b98aa; font-size: .78rem; margin: 0 0 .8rem .3rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
 
-    /* ── CTA ── */
-    .cta-section {
-      background: var(--accent);
-      color: #fff;
-      text-align: center;
-      padding: 6rem 0;
-    }
-    .cta-section h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2rem, 4vw, 3rem);
-      margin-bottom: 1rem;
-    }
-    .cta-section p { font-size: 1.05rem; opacity: 0.85; max-width: 560px; margin: 0 auto 2.5rem; }
-    .btn-white {
-      background: #fff;
-      color: var(--accent);
-      padding: 0.9rem 2.2rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border-radius: 6px;
-      text-decoration: none;
-      display: inline-block;
-      margin: 0.4rem;
-      transition: transform 0.15s;
-    }
-    .btn-white:hover { transform: translateY(-2px); color: var(--accent); }
-    .btn-white-outline {
-      background: transparent;
-      color: #fff;
-      border: 2px solid rgba(255,255,255,0.6);
-      padding: 0.9rem 2.2rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border-radius: 6px;
-      text-decoration: none;
-      display: inline-block;
-      margin: 0.4rem;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .btn-white-outline:hover { border-color: #fff; background: rgba(255,255,255,0.1); color:#fff; }
-
-    /* ── CONTACT FOOTER ── */
-    .contact-footer {
-      background: #0a0d12;
-      color: #9ca3af;
-      padding: 3rem 0;
-      font-size: 0.85rem;
-    }
-    .contact-footer strong { color: #e5e7eb; }
-    .contact-footer a { color: var(--accent-mid); text-decoration: none; }
-
-    /* ── UTILS ── */
-    .tag {
-      display: inline-block;
-      background: var(--accent-light);
-      color: var(--accent);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.2rem 0.7rem;
-      border-radius: 4px;
-      margin: 0.2rem;
-    }
-    ul.check-list { list-style: none; padding: 0; }
+    ul.check-list { list-style: none; padding: 0; margin: 1rem 0 0; }
     ul.check-list li {
-      padding: 0.3rem 0;
-      padding-left: 1.6rem;
       position: relative;
-      font-size: 0.9rem;
+      padding-left: 1.65rem;
+      margin: .55rem 0;
       color: var(--muted);
+      font-size: .92rem;
     }
     ul.check-list li::before {
       content: '✓';
       position: absolute;
       left: 0;
+      top: .02rem;
       color: var(--accent);
-      font-weight: 700;
+      font-weight: 900;
+    }
+
+    .usecase-list { margin-top: 3rem; border-radius: var(--radius-lg); overflow:hidden; border: 1px solid var(--border); background: rgba(255,253,248,.72); }
+    .usecase-item {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 1rem;
+      padding: 1.55rem 1.7rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .usecase-item:last-child { border-bottom: none; }
+    .usecase-num { font-family: 'DM Serif Display', Georgia, serif; font-size: 2.3rem; color: rgba(184,71,45,.24); line-height: 1; }
+    .usecase-item h4 { font-weight: 850; margin:0 0 .3rem; }
+    .usecase-item p { color: var(--muted); margin:0; font-size:.92rem; }
+
+    .methode-step { counter-increment: step; padding-top: 2.2rem; }
+    .methode-step::before {
+      content: counter(step, decimal-leading-zero);
+      position: absolute;
+      top: 1rem;
+      right: 1.1rem;
+      color: rgba(184,71,45,.20);
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 2.35rem;
+      line-height: 1;
+    }
+
+    .tag-cloud { display:flex; flex-wrap:wrap; gap:.45rem; margin-top: 1rem; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: .28rem .7rem;
+      background: rgba(223,242,233,.78);
+      border: 1px solid rgba(184,71,45,.14);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 750;
+    }
+
+    .about-section {
+      background:
+        radial-gradient(circle at 80% 0%, rgba(210,142,70,.24), transparent 30rem),
+        linear-gradient(160deg, #0d1117, #121b26 58%, #0d1117);
+      color: #eef2f7;
+    }
+    .about-section .section-intro, .about-section p { color: #a8b1c0; }
+    .about-section .section-label { color: #69dba2; }
+    .about-section .section-label::before { background:#69dba2; box-shadow:0 0 0 6px rgba(105,219,162,.12); }
+    .about-section a { color: #7ee3ae; }
+
+    .about-profile {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 2rem;
+      align-items: start;
+      margin-top: 3rem;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+    }
+    .about-profile img {
+      width: 124px;
+      height: 124px;
+      border-radius: 28px;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 20px 50px rgba(0,0,0,.28);
+    }
+    .about-profile h3 { font-family: 'DM Serif Display', Georgia, serif; font-size: 2rem; margin:0; }
+    .about-profile .role { color: #74dfa8; font-weight: 800; font-size: .92rem; margin: .25rem 0 1rem; }
+
+    .about-achievements {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .achievement {
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding: 1.25rem;
+    }
+    .achievement .val { font-family: 'DM Serif Display', Georgia, serif; font-size: 2.2rem; color:#79e2ad; line-height:1; }
+    .achievement .lbl { color:#a8b1c0; font-size:.82rem; margin-top:.35rem; }
+
+    .about-columns { display:grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem; }
+    .about-columns h4 { color:#f4f7fb; font-size:1rem; font-weight:850; margin-bottom:1rem; }
+
+    .cta-section {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #d28e46, #b8472d);
+      color: #fff;
+      text-align: center;
+      padding: 6.3rem 0;
+    }
+    .cta-section::before, .cta-section::after {
+      content:'';
+      position:absolute;
+      border-radius:999px;
+      background:rgba(255,255,255,.14);
+      filter: blur(2px);
+    }
+    .cta-section::before { width: 360px; height: 360px; left:-140px; top:-120px; }
+    .cta-section::after { width: 260px; height: 260px; right:-100px; bottom:-120px; }
+    .cta-section .container { position:relative; z-index:1; }
+    .cta-section h2 { font-family:'DM Serif Display', Georgia, serif; font-size: clamp(2.1rem, 4.8vw, 4rem); line-height:1.02; margin-bottom:1rem; }
+    .cta-section p { max-width: 640px; margin: 0 auto 2rem; color: rgba(255,255,255,.86); font-size:1.08rem; }
+    .btn-white { background: #fff; color: var(--accent); }
+    .btn-white:hover { color: var(--accent); transform: translateY(-2px); box-shadow: 0 18px 34px rgba(0,0,0,.14); }
+    .btn-white-outline { border: 1px solid rgba(255,255,255,.55); color:#fff; background:rgba(255,255,255,.08); }
+    .btn-white-outline:hover { color:#fff; border-color:#fff; transform:translateY(-2px); background:rgba(255,255,255,.15); }
+
+    .contact-footer { background:#080b10; color:#99a3b3; padding:3.2rem 0; font-size:.87rem; }
+    .contact-footer strong { color:#edf2f7; }
+    .contact-footer a { color:#7ee3ae; text-decoration:none; }
+
+    @media (max-width: 991px) {
+      .hero-grid, .pipeline-wrap, .about-columns { grid-template-columns: 1fr; }
+      .problem-grid, .why-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .services-grid, .methode-steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .hero { padding-top: 4.8rem; }
+    }
+
+    @media (max-width: 680px) {
+      section { padding: 4rem 0; }
+      .hero-proof, .problem-grid, .services-grid, .why-grid, .methode-steps, .about-achievements { grid-template-columns: 1fr; }
+      .about-profile { grid-template-columns: 1fr; padding: 1.3rem; }
+      .usecase-item { grid-template-columns: 1fr; }
+      h1 { font-size: clamp(2.55rem, 13vw, 3.7rem); }
     }
   </style>
 </head>
 <body>
 
-  <!-- ── NAVBAR ── -->
-  <nav class="navbar navbar-expand-lg">
+  <nav class="navbar navbar-expand-lg" aria-label="Navigation principale">
     <div class="container">
-      <a class="navbar-brand" href="#">Logikascium</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <a class="navbar-brand" href="#"><span class="brand-mark">L</span> Logikascium</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Afficher la navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-        <ul class="navbar-nav gap-3">
+        <ul class="navbar-nav gap-lg-3">
           <li class="nav-item"><a class="nav-link active" href="#">Accueil</a></li>
           <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
           <li class="nav-item"><a class="nav-link" href="#methode">Méthode</a></li>
@@ -450,328 +531,216 @@
     </div>
   </nav>
 
-  <!-- ── HERO ── -->
-  <section class="hero">
-    <div class="container">
-      <span class="hero-eyebrow">GED · RAG · Recherche sémantique · IA documentaire</span>
-      <h1>Transformez vos documents en base de connaissances <em>augmentée par l'IA</em></h1>
-      <p class="hero-sub">Vos archives, PDF, procédures et dossiers contiennent une richesse immense — mais elle reste enfermée, dispersée, difficile à exploiter. Logikascium vous aide à en faire une base structurée, interrogeable et vivante.</p>
-      <div class="d-flex gap-3 flex-wrap">
-        <a href="#contact" class="btn-primary-custom">Parler de votre projet</a>
-        <a href="#services" class="btn-outline-custom">Découvrir nos services</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── PROBLÈME ── -->
-  <section>
-    <div class="container">
-      <p class="section-label">Le constat</p>
-      <h2 class="section-title">La connaissance est là.<br>Mais elle n'est pas accessible.</h2>
-      <p class="section-intro">Trop souvent, l'information précieuse de votre organisation reste enfermée dans des silos difficiles à exploiter.</p>
-      <div class="problem-grid">
-        <div class="problem-card">
-          <div class="icon">📁</div>
-          <h4>Documents dispersés</h4>
-          <p>Répertoires partagés, GED anciennes, portails devenus complexes à maintenir.</p>
-        </div>
-        <div class="problem-card">
-          <div class="icon">🔍</div>
-          <h4>Recherche inefficace</h4>
-          <p>Les moteurs classiques ne comprennent pas le sens — ils cherchent des mots, pas des réponses.</p>
-        </div>
-        <div class="problem-card">
-          <div class="icon">📄</div>
-          <h4>PDF et scans inexploitables</h4>
-          <p>Des années d'archives papier et de documents numérisés sans aucune indexation utile.</p>
-        </div>
-        <div class="problem-card">
-          <div class="icon">🧠</div>
-          <h4>Savoir non capitalisé</h4>
-          <p>Les connaissances clés partent avec les experts, non documentées ni transmises.</p>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow">GED · RAG · IA documentaire</p>
+            <h1>Transformez vos documents en <em>base de connaissances</em> augmentée.</h1>
+            <p class="hero-sub">Vos archives, PDF, procédures et dossiers contiennent déjà une richesse immense. Logikascium vous aide à la structurer, la rechercher, la relier et l’exploiter avec des outils d’IA fiables, sourcés et maintenables.</p>
+            <div class="hero-actions">
+              <a href="#contact" class="btn-primary-custom">Parler de votre projet →</a>
+              <a href="#services" class="btn-outline-custom">Découvrir nos services</a>
+            </div>
+            <div class="hero-proof" aria-label="Points forts Logikascium">
+              <div class="proof-item"><strong>20 ans</strong><span>d’expérience en GED, portails collaboratifs et logiciels libres</span></div>
+              <div class="proof-item"><strong>IA sourcée</strong><span>réponses rattachées aux documents, pages, versions et droits</span></div>
+              <div class="proof-item"><strong>Approche métier</strong><span>audit, prototype, industrialisation et formation</span></div>
+            </div>
+          </div>
+          <aside class="hero-card" aria-label="Illustration du pipeline documentaire">
+            <div class="terminal">
+              <div class="terminal-top"><span>knowledge-pipeline.yaml</span><div class="dots"><span></span><span></span><span></span></div></div>
+              <div class="terminal-body">
+                <span class="muted">source:</span> PDF · scans · GED · intranet<br>
+                <span class="muted">extract:</span> OCR · tableaux · images<br>
+                <span class="muted">compile:</span> <span class="accent">Markdown + métadonnées</span><br>
+                <span class="muted">index:</span> plein texte + embeddings<br>
+                <span class="muted">answer:</span> <span class="accent">réponse sourcée</span>
+              </div>
+            </div>
+            <div class="mini-card-grid">
+              <div class="mini-card"><strong>Traçabilité</strong><span>Chaque réponse revient à ses sources.</span></div>
+              <div class="mini-card"><strong>Incrémental</strong><span>On enrichit sans tout recalculer.</span></div>
+              <div class="mini-card"><strong>Gouvernance</strong><span>Droits, versions et validation.</span></div>
+              <div class="mini-card"><strong>Maintenance</strong><span>Architecture claire, auditables.</span></div>
+            </div>
+          </aside>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── PIPELINE ── -->
-  <section>
-    <div class="container">
-      <p class="section-label">Notre approche</p>
-      <h2 class="section-title">Du document brut à la connaissance exploitable</h2>
-      <p class="section-intro">Un RAG efficace ne commence pas par des embeddings — il commence par une préparation rigoureuse des données.</p>
-      <div class="row mt-5 align-items-center g-5">
-        <div class="col-lg-6">
+    <section>
+      <div class="container">
+        <p class="section-label">Le constat</p>
+        <h2 class="section-title">La connaissance est là. Elle n’est simplement pas exploitable.</h2>
+        <p class="section-intro">Dans beaucoup d’organisations, l’information critique existe déjà, mais elle reste dispersée, mal indexée ou enfermée dans des formats peu utilisables.</p>
+        <div class="problem-grid">
+          <div class="problem-card"><div class="icon-badge">01</div><h4>Documents dispersés</h4><p>Répertoires partagés, GED anciennes, exports, intranets et portails difficiles à maintenir.</p></div>
+          <div class="problem-card"><div class="icon-badge">02</div><h4>Recherche insuffisante</h4><p>Les moteurs classiques retrouvent des mots, mais ne comprennent pas toujours l’intention métier.</p></div>
+          <div class="problem-card"><div class="icon-badge">03</div><h4>PDF et scans dormants</h4><p>Des années d’archives numérisées, parfois lisibles, rarement structurées ou correctement exploitées.</p></div>
+          <div class="problem-card"><div class="icon-badge">04</div><h4>Savoir non capitalisé</h4><p>Les connaissances clés restent dans les têtes, les mails ou les dossiers, sans transmission durable.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-label">Notre approche</p>
+        <h2 class="section-title">Un RAG efficace commence avant les embeddings.</h2>
+        <p class="section-intro">Nous construisons une couche documentaire propre, lisible, sourcée et versionnée avant de la connecter à la recherche sémantique et aux LLM.</p>
+        <div class="pipeline-wrap">
           <div class="pipeline">
-<span class="highlight">Documents sources</span><br>
-<span class="arrow">→</span> extraction propre (OCR, PDF, DOCX, images)<br>
-<span class="arrow">→</span> conversion en <span class="highlight">Markdown structuré</span><br>
-<span class="arrow">→</span> enrichissement des <span class="highlight">métadonnées</span><br>
-<span class="arrow">→</span> résumés + entités + liens entre documents<br>
-<span class="arrow">→</span> chunks hiérarchiques<br>
-<span class="arrow">→</span> <span class="highlight">indexation hybride</span> (plein texte + sémantique)<br>
-<span class="arrow">→</span> <span class="highlight">réponses sourcées</span> par LLM
+            <p class="pipeline-caption">Pipeline documentaire</p>
+            <div class="pipeline-code">
+              <span class="highlight">Documents sources</span><br>
+              <span class="arrow">→</span> extraction propre : OCR, PDF, DOCX, images<br>
+              <span class="arrow">→</span> conversion en <span class="highlight">Markdown structuré</span><br>
+              <span class="arrow">→</span> métadonnées, entités, résumés, liens<br>
+              <span class="arrow">→</span> chunks hiérarchiques et index techniques<br>
+              <span class="arrow">→</span> recherche hybride : plein texte + sémantique<br>
+              <span class="arrow">→</span> <span class="highlight">assistant IA sourcé</span>
+            </div>
+          </div>
+          <div>
+            <p style="color:var(--muted);font-size:1rem;">Chaque réponse peut être rattachée à ses sources : document, page, section, date, auteur, version et droits d’accès. L’objectif n’est pas de produire une boîte noire, mais une base de connaissances fiable, gouvernée et maintenable.</p>
+            <ul class="check-list">
+              <li>OCR, extraction de tableaux, images et schémas</li>
+              <li>Markdown structuré et métadonnées métier</li>
+              <li>Recherche hybride : BM25, embeddings, filtres et reranking</li>
+              <li>Réponses sourcées et contrôle des droits d’accès</li>
+              <li>Enrichissement incrémental sans retraiter tout le corpus</li>
+            </ul>
           </div>
         </div>
-        <div class="col-lg-6">
-          <p style="font-size:0.95rem;color:var(--muted);">Chaque réponse générée peut revenir à ses sources : <strong>page, document, section, date, auteur, version</strong>. Pas de boîte noire — des résultats vérifiables et gouvernés.</p>
-          <ul class="check-list mt-3">
-            <li>OCR multi-moteurs et modèles multimodaux</li>
-            <li>Extraction de tableaux, schémas, illustrations</li>
-            <li>Recherche hybride (plein texte + embeddings)</li>
-            <li>Reranking et filtrage métier</li>
-            <li>Traçabilité complète des traitements</li>
-            <li>Enrichissement incrémental sans tout recalculer</li>
-          </ul>
-        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── SERVICES ── -->
-  <section id="services">
-    <div class="container">
-      <p class="section-label">Services</p>
-      <h2 class="section-title">Ce que nous construisons avec vous</h2>
-      <p class="section-intro">Logikascium intervient sur toute la chaîne de transformation documentaire, de la reprise de l'existant jusqu'à l'assistant IA métier.</p>
-      <div class="services-grid">
-        <div class="service-card">
-          <p class="service-num">01</p>
-          <h3>Numérisation &amp; reprise de l'existant</h3>
-          <p>Archives papier, PDF scannés, fichiers bureautiques, exports GED, CMS et intranets. Nous disposons de scanners professionnels pour accompagner vos projets.</p>
-        </div>
-        <div class="service-card">
-          <p class="service-num">02</p>
-          <h3>OCR &amp; transformation en Markdown</h3>
-          <p>Pipeline complet d'extraction, structuration et enrichissement : texte, images, tableaux, métadonnées. Des documents propres, vérifiables et prêts pour l'IA.</p>
-        </div>
-        <div class="service-card">
-          <p class="service-num">03</p>
-          <h3>GED et workflows documentaires</h3>
-          <p>Création ou modernisation de votre GED : portail documentaire, workflows de validation, gestion des versions et des droits d'accès.</p>
-        </div>
-        <div class="service-card">
-          <p class="service-num">04</p>
-          <h3>Moteur de recherche sémantique</h3>
-          <p>Architecture hybride combinant recherche plein texte, embeddings, métadonnées et graphe de connaissances pour une recherche qui comprend le sens.</p>
-        </div>
-        <div class="service-card">
-          <p class="service-num">05</p>
-          <h3>Assistant IA documentaire</h3>
-          <p>Un LLM ancré sur vos sources internes, qui répond en citant ses documents, respecte vos règles d'accès et ne confabule pas.</p>
-        </div>
-        <div class="service-card">
-          <p class="service-num">06</p>
-          <h3>Second cerveau &amp; Obsidian</h3>
-          <p>Vault Obsidian augmenté par IA — notes interliées, synthèses, index, mémorisation — pour capitaliser le savoir de vos équipes de façon durable.</p>
+    <section id="services">
+      <div class="container">
+        <p class="section-label">Services</p>
+        <h2 class="section-title">Ce que nous construisons avec vous.</h2>
+        <p class="section-intro">Logikascium intervient sur toute la chaîne : reprise documentaire, structuration, GED, recherche sémantique, RAG et assistants IA métier.</p>
+        <div class="services-grid">
+          <div class="service-card"><p class="service-num">01</p><h3>Numérisation & reprise de l’existant</h3><p>Archives papier, PDF scannés, fichiers bureautiques, exports GED, CMS et intranets. Nous pouvons accompagner les projets de numérisation avec scanners professionnels.</p></div>
+          <div class="service-card"><p class="service-num">02</p><h3>OCR & Markdown structuré</h3><p>Extraction, nettoyage et structuration du contenu : texte, images, tableaux, métadonnées, résumés et liens. Vos documents deviennent exploitables par l’IA.</p></div>
+          <div class="service-card"><p class="service-num">03</p><h3>GED & workflows documentaires</h3><p>Création ou modernisation de portails documentaires : validation, publication, versions, rôles, droits d’accès et traçabilité.</p></div>
+          <div class="service-card"><p class="service-num">04</p><h3>Recherche sémantique</h3><p>Architectures hybrides combinant recherche plein texte, embeddings, métadonnées et graphe de connaissances pour retrouver le sens, pas seulement les mots.</p></div>
+          <div class="service-card"><p class="service-num">05</p><h3>Assistant IA documentaire</h3><p>Un assistant ancré dans vos sources internes, capable de répondre en langage naturel avec citations, contrôles d’accès et garde-fous.</p></div>
+          <div class="service-card"><p class="service-num">06</p><h3>Second cerveau & Obsidian</h3><p>Vaults Obsidian augmentés par IA : notes interliées, synthèses, index, questions de remémoration et capitalisation durable des connaissances.</p></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── CAS D'USAGE ── -->
-  <section>
-    <div class="container">
-      <p class="section-label">Cas d'usage</p>
-      <h2 class="section-title">Votre situation ressemble à l'une de ces problématiques ?</h2>
-      <div class="usecase-list">
-        <div class="usecase-item">
-          <div class="usecase-num">01</div>
-          <div>
-            <h4>Moderniser une GED existante</h4>
-            <p>La recherche est limitée, les documents sont mal classés, les utilisateurs ne trouvent plus l'information. Nous enrichissons votre base avec OCR, recherche sémantique, résumés automatiques et assistant documentaire.</p>
-          </div>
-        </div>
-        <div class="usecase-item">
-          <div class="usecase-num">02</div>
-          <div>
-            <h4>Créer une base de connaissances interne</h4>
-            <p>Capitaliser procédures, méthodes, retours d'expérience, documentation technique et dossiers qualité — structurée, maintenable et interrogeable par IA.</p>
-          </div>
-        </div>
-        <div class="usecase-item">
-          <div class="usecase-num">03</div>
-          <div>
-            <h4>Exploiter des archives papier ou PDF scannés</h4>
-            <p>Des années d'archives sans indexation utile. Nous mettons en place la chaîne complète : scan → OCR → structuration → classement → résumé → recherche sémantique → assistant IA.</p>
-          </div>
-        </div>
-        <div class="usecase-item">
-          <div class="usecase-num">04</div>
-          <div>
-            <h4>Construire un assistant documentaire métier</h4>
-            <p>Permettre à vos équipes de poser des questions en langage naturel sur vos documents internes, avec des réponses sourcées et vérifiables.</p>
-          </div>
-        </div>
-        <div class="usecase-item">
-          <div class="usecase-num">05</div>
-          <div>
-            <h4>Mettre en place un second cerveau d'équipe</h4>
-            <p>Pour les équipes projet, chercheurs, formateurs ou directions métiers — un vault Obsidian augmenté par IA pour une connaissance cumulative et partagée.</p>
-          </div>
+    <section>
+      <div class="container">
+        <p class="section-label">Cas d’usage</p>
+        <h2 class="section-title">Des projets concrets, à forte valeur métier.</h2>
+        <div class="usecase-list">
+          <div class="usecase-item"><div class="usecase-num">01</div><div><h4>Moderniser une GED existante</h4><p>La recherche est limitée, les documents sont mal classés ou les utilisateurs ne trouvent plus l’information. Nous enrichissons votre base avec OCR, recherche sémantique, résumés automatiques et assistant documentaire.</p></div></div>
+          <div class="usecase-item"><div class="usecase-num">02</div><div><h4>Créer une base de connaissances interne</h4><p>Capitaliser procédures, méthodes, retours d’expérience, documentation technique et dossiers qualité dans une base structurée et interrogeable.</p></div></div>
+          <div class="usecase-item"><div class="usecase-num">03</div><div><h4>Exploiter des archives papier ou PDF scannés</h4><p>Mettre en place une chaîne complète : scan, OCR, structuration, classement, résumé, indexation et recherche sémantique.</p></div></div>
+          <div class="usecase-item"><div class="usecase-num">04</div><div><h4>Construire un assistant documentaire métier</h4><p>Permettre aux équipes de poser des questions en langage naturel sur leurs documents internes, avec des réponses sourcées et vérifiables.</p></div></div>
+          <div class="usecase-item"><div class="usecase-num">05</div><div><h4>Mettre en place un second cerveau d’équipe</h4><p>Pour les équipes projet, chercheurs, formateurs ou directions métiers : un espace de connaissance cumulatif, éditable et partagé.</p></div></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── MÉTHODE ── -->
-  <section id="methode">
-    <div class="container">
-      <p class="section-label">Méthode</p>
-      <h2 class="section-title">Une approche incrémentale et durable</h2>
-      <p class="section-intro">Nous ne construisons pas une IA sur des documents mal préparés. Chaque étape valide la valeur métier avant d'aller plus loin.</p>
-      <div class="methode-steps">
-        <div class="methode-step">
-          <h4>Audit documentaire</h4>
-          <p>Analyse de vos documents, outils existants, usages et contraintes.</p>
+    <section id="methode">
+      <div class="container">
+        <p class="section-label">Méthode</p>
+        <h2 class="section-title">Une démarche progressive, vérifiable et durable.</h2>
+        <p class="section-intro">Nous validons la valeur sur un périmètre limité avant d’industrialiser. Chaque étape produit un résultat concret et réutilisable.</p>
+        <div class="methode-steps">
+          <div class="methode-step"><h4>Audit documentaire</h4><p>Analyse de vos documents, outils existants, usages, droits d’accès et contraintes métier.</p></div>
+          <div class="methode-step"><h4>Prototype rapide</h4><p>Démonstrateur sur un corpus limité pour mesurer la valeur et ajuster l’approche.</p></div>
+          <div class="methode-step"><h4>Structuration</h4><p>Conversion, OCR, Markdown, métadonnées, normalisation et préparation des index.</p></div>
+          <div class="methode-step"><h4>Moteur de connaissance</h4><p>Recherche hybride, embeddings, filtres, reranking, droits d’accès et assistant IA.</p></div>
+          <div class="methode-step"><h4>Industrialisation</h4><p>Ingestion automatisée, enrichissement incrémental, supervision et maintenance.</p></div>
+          <div class="methode-step"><h4>Formation</h4><p>Transmission aux équipes pour garantir l’appropriation et l’évolution du système.</p></div>
         </div>
-        <div class="methode-step">
-          <h4>Prototype rapide</h4>
-          <p>Premier démonstrateur sur un corpus limité pour valider la valeur métier.</p>
-        </div>
-        <div class="methode-step">
-          <h4>Structuration des données</h4>
-          <p>Chaîne de conversion, OCR, Markdown, métadonnées et indexation.</p>
-        </div>
-        <div class="methode-step">
-          <h4>Moteur de connaissance</h4>
-          <p>Recherche hybride, embeddings, filtres, droits d'accès et premiers assistants.</p>
-        </div>
-        <div class="methode-step">
-          <h4>Industrialisation</h4>
-          <p>Automatisation de l'ingestion, enrichissement incrémental, supervision et maintenance.</p>
-        </div>
-        <div class="methode-step">
-          <h4>Formation &amp; appropriation</h4>
-          <p>Vos équipes comprennent, utilisent et font évoluer leur base de connaissances.</p>
-        </div>
-      </div>
-      <div class="row mt-5">
-        <div class="col-lg-8">
+        <div class="mt-5">
           <p class="section-label">Technologies</p>
-          <p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem;">Selon vos contraintes de confidentialité, de coût et de maintenabilité :</p>
+          <p class="section-intro">Nous adaptons la solution à vos contraintes de confidentialité, de coût, de performance et de maintenabilité.</p>
+          <div class="tag-cloud">
+            <span class="tag">Modèles locaux</span><span class="tag">Open source</span><span class="tag">Docker / Kubernetes</span><span class="tag">Bases vectorielles</span><span class="tag">Elasticsearch / OpenSearch</span><span class="tag">PostgreSQL</span><span class="tag">MinIO / S3</span><span class="tag">Obsidian</span><span class="tag">OCR multimodal</span><span class="tag">Solutions souveraines</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-label">Pourquoi Logikascium</p>
+        <h2 class="section-title">Une expertise longue, une vision réaliste de l’IA.</h2>
+        <p class="section-intro">Notre savoir-faire ne vient pas d’une mode récente : il s’appuie sur une expérience ancienne des portails collaboratifs, de la GED, des workflows et des logiciels libres.</p>
+        <div class="why-grid">
+          <div class="why-card"><h4>Expérience documentaire</h4><p>Depuis 2005 : GED, intranets, extranets, portails collaboratifs, Plone et workflows métiers.</p></div>
+          <div class="why-card"><h4>Culture open source</h4><p>Architectures compréhensibles, auditables et maintenables. Pas de dépendance imposée sans justification.</p></div>
+          <div class="why-card"><h4>Orientation métier</h4><p>Nous partons de vos processus, de vos utilisateurs et de vos contraintes avant de choisir les outils.</p></div>
+          <div class="why-card"><h4>IA encadrée</h4><p>Des réponses sourcées, vérifiables, traçables et gouvernées, adaptées à vos règles internes.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section" id="about">
+      <div class="container">
+        <p class="section-label">Qui sommes-nous</p>
+        <h2 class="section-title">Logikascium, architecture logicielle et IA documentaire.</h2>
+        <p class="section-intro">EURL fondée en 2023, basée à Fretin dans la métropole lilloise, spécialisée dans l’architecture logicielle, les projets documentaires complexes et l’intégration raisonnée de l’IA.</p>
+        <div class="about-profile">
+          <img src="./images/PhotoIdentiteFormatNational.png" alt="Portrait de Michaël Launay">
           <div>
-            <span class="tag">Modèles locaux</span>
-            <span class="tag">Open source</span>
-            <span class="tag">Docker / Kubernetes</span>
-            <span class="tag">Bases vectorielles</span>
-            <span class="tag">Elasticsearch</span>
-            <span class="tag">PostgreSQL</span>
-            <span class="tag">MinIO / S3</span>
-            <span class="tag">Obsidian</span>
-            <span class="tag">Mistral OCR</span>
-            <span class="tag">DeepSeek OCR</span>
-            <span class="tag">Gemini</span>
-            <span class="tag">GED existante</span>
-            <span class="tag">Solutions souveraines</span>
+            <h3>Michaël Launay</h3>
+            <p class="role">Architecte logiciel senior · Fondateur</p>
+            <p>Plus de 25 ans d’expérience dans la conception et la réalisation de systèmes logiciels complexes, de l’expression du besoin jusqu’à la mise en production. Expertise en pilotage agile, dématérialisation de processus métier collaboratifs et traitement automatisé de documents numérisés.</p>
+            <p>Ingénieur productif, je reste au contact des réalités techniques du terrain : administration GNU/Linux, développement Python, architectures web, intégration et accompagnement des équipes.</p>
+            <div class="hero-actions" style="margin-bottom:0;">
+              <a href="./CV.pdf" class="btn-white-outline">Télécharger le CV</a>
+              <a href="https://www.linkedin.com/in/michaellaunay19730119/" class="btn-white-outline">LinkedIn</a>
+            </div>
+          </div>
+        </div>
+        <div class="about-achievements">
+          <div class="achievement"><div class="val">25+</div><div class="lbl">ans d’expérience logicielle</div></div>
+          <div class="achievement"><div class="val">3 M€</div><div class="lbl">de chiffre d’affaires cumulé</div></div>
+          <div class="achievement"><div class="val">1 M€</div><div class="lbl">d’aides obtenues, CIR/CII inclus</div></div>
+          <div class="achievement"><div class="val">7</div><div class="lbl">collaborateurs CDI accompagnés</div></div>
+        </div>
+        <div class="about-columns">
+          <div>
+            <h4>Réalisations notables</h4>
+            <ul class="check-list">
+              <li>Développement de Nova-Ideo, solution open source de gestion de processus collaboratifs</li>
+              <li>Dossiers CIR/CII gérés de 2007 à 2023</li>
+              <li>Levée de 300 k€ de fonds en 2012</li>
+              <li>Encadrement d’une thèse CIFRE</li>
+              <li>Contributions à des projets open source</li>
+              <li>Pipelines OCR et IA documentaire multimodaux</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Transmission et publications</h4>
+            <p>Cours dispensés depuis 2019, avec supports disponibles sur <a href="https://github.com/michaellaunay/NotesPubliques/tree/master/cours">GitHub</a>.</p>
+            <p>Article publié dans Linux Pratique sur <a href="https://connect.ed-diamond.com/Linux-Pratique/lp-101/organiser-un-brainstorming-geant-l-innovation-participative-en-pratique-avec-nova-ideo">Nova-Ideo</a>.</p>
+            <p>Article LinkedIn sur le <a href="https://www.linkedin.com/pulse/ayez-un-deuxi%2525C3%2525A8me-cerveau-num%2525C3%2525A9rique-michael-launay">deuxième cerveau numérique</a>.</p>
+            <p><strong style="color:#eef2f7;">Disponibilité :</strong> missions en télétravail ou sur site, conseil et accompagnement, depuis la métropole lilloise.</p>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── POURQUOI NOUS ── -->
-  <section>
-    <div class="container">
-      <p class="section-label">Pourquoi Logikascium</p>
-      <h2 class="section-title">Une expertise longue, une vision réaliste de l'IA</h2>
-      <p class="section-intro">Notre savoir-faire ne vient pas d'une mode récente autour de l'IA. Il s'appuie sur près de vingt ans d'expérience dans les portails collaboratifs, la GED et les logiciels libres.</p>
-      <div class="why-grid mt-4">
-        <div class="why-card">
-          <h4>Expérience longue des portails collaboratifs</h4>
-          <p>Depuis 2005, conception de GED, intranets, extranets et workflows documentaires pour des organisations exigeantes (contributeur reconnu de Plone).</p>
-        </div>
-        <div class="why-card">
-          <h4>Culture open source et maîtrise technique</h4>
-          <p>Architectures compréhensibles, auditables et maintenables. Pas de boîte noire, pas de dépendance imposée sans justification.</p>
-        </div>
-        <div class="why-card">
-          <h4>Approche orientée métier</h4>
-          <p>Nous cherchons d'abord à comprendre vos processus, vos utilisateurs et vos contraintes — pas à brancher un LLM sur vos fichiers.</p>
-        </div>
-        <div class="why-card">
-          <h4>Vision réaliste de l'IA</h4>
-          <p>Des systèmes où les réponses sont sourcées, vérifiables, traçables et gouvernées — adaptées à vos métiers et contraintes réglementaires.</p>
-        </div>
+    <section class="cta-section" id="contact">
+      <div class="container">
+        <h2>Votre connaissance existe déjà.<br>Rendons-la exploitable.</h2>
+        <p>Contactez-nous pour étudier votre corpus documentaire, identifier les cas d’usage prioritaires et construire un premier prototype.</p>
+        <a href="mailto:michaellaunay@logikascium.com" class="btn-white">Écrire un courriel</a>
+        <a href="https://www.linkedin.com/in/michaellaunay19730119/" class="btn-white-outline">Contacter sur LinkedIn</a>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- ── QUI SOMMES-NOUS ── -->
-  <section class="about-section" id="about">
-    <div class="container">
-      <p class="section-label">Qui sommes-nous</p>
-      <h2 class="section-title">Logikascium, fondée en 2023</h2>
-      <p class="section-intro">EURL spécialisée dans l'architecture logicielle, le pilotage de projets complexes et l'IA documentaire — basée à Fretin, dans la métropole lilloise.</p>
-
-      <div class="about-profile">
-        <img src="./images/PhotoIdentiteFormatNational.png" alt="Michaël Launay">
-        <div class="about-profile-info">
-          <h3>Michaël Launay</h3>
-          <p class="role">Architecte logiciel senior · Fondateur</p>
-          <p>Plus de 25 ans d'expérience dans la conception et la réalisation de systèmes logiciels complexes, de l'expression du besoin jusqu'à la mise en production. Expertise en pilotage agile, dématérialisation de processus métier collaboratifs et traitement automatisé de documents numérisés.</p>
-          <p>Ingénieur productif, je demeure au contact des réalités techniques du terrain tout en sachant gérer une équipe. J'administre les serveurs GNU/Linux et développe en Python par plaisir.</p>
-          <div class="mt-3">
-            <a href="./CV.pdf" class="btn-white-outline me-2" style="font-size:0.82rem;padding:0.5rem 1.2rem;">Télécharger mon CV</a>
-            <a href="https://www.linkedin.com/in/michaellaunay19730119/" class="btn-white-outline" style="font-size:0.82rem;padding:0.5rem 1.2rem;">LinkedIn</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="about-achievements">
-        <div class="achievement">
-          <div class="val">25+</div>
-          <div class="lbl">ans d'expérience logicielle</div>
-        </div>
-        <div class="achievement">
-          <div class="val">3M€</div>
-          <div class="lbl">de chiffre d'affaires cumulé</div>
-        </div>
-        <div class="achievement">
-          <div class="val">1M€</div>
-          <div class="lbl">d'aides obtenues (CIR/CII)</div>
-        </div>
-        <div class="achievement">
-          <div class="val">7</div>
-          <div class="lbl">collaborateurs CDI, 6 ans de turnover moyen</div>
-        </div>
-      </div>
-
-      <div class="row mt-5 g-5">
-        <div class="col-lg-6">
-          <h4 style="color:#e5e7eb;font-size:0.95rem;font-weight:700;margin-bottom:1rem;">Réalisations notables</h4>
-          <ul class="check-list" style="--muted:#9ca3af;">
-            <li>Développement de Nova-Ideo, solution open source de gestion de processus collaboratifs</li>
-            <li>Dossiers CIR/CII gérés de 2007 à 2023</li>
-            <li>Levée de 300k€ de fonds en 2012</li>
-            <li>Encadrement d'une thèse CIFRE</li>
-            <li>Contribution à de nombreux projets open source</li>
-            <li>Pipelines OCR multi-moteurs (DeepSeek, Mistral, Gemini)</li>
-          </ul>
-        </div>
-        <div class="col-lg-6">
-          <h4 style="color:#e5e7eb;font-size:0.95rem;font-weight:700;margin-bottom:1rem;">Contributions académiques</h4>
-          <p style="color:#9ca3af;font-size:0.9rem;">Cours dispensés depuis 2019 — retrouvez l'ensemble des supports sur <a href="https://github.com/michaellaunay/NotesPubliques/tree/master/cours">GitHub</a>.</p>
-          <p style="color:#9ca3af;font-size:0.9rem;">Article publié sur <a href="https://connect.ed-diamond.com/Linux-Pratique/lp-101/organiser-un-brainstorming-geant-l-innovation-participative-en-pratique-avec-nova-ideo">Nova-Ideo</a> dans Linux Pratique.</p>
-          <p style="color:#9ca3af;font-size:0.9rem;">Article sur le <a href="https://www.linkedin.com/pulse/ayez-un-deuxi%2525C3%2525A8me-cerveau-num%2525C3%2525A9rique-michael-launay">deuxième cerveau numérique</a> (LinkedIn, 2023).</p>
-          <h4 style="color:#e5e7eb;font-size:0.95rem;font-weight:700;margin-top:1.5rem;margin-bottom:0.5rem;">Disponibilité</h4>
-          <p style="color:#9ca3af;font-size:0.9rem;">Missions en télétravail ou sur site. Conseil et accompagnement. Basé à Fretin, métropole lilloise.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CTA ── -->
-  <section class="cta-section" id="contact">
-    <div class="container">
-      <h2>Votre connaissance existe déjà.<br>Rendons-la exploitable.</h2>
-      <p>Contactez-nous pour étudier votre corpus documentaire et construire un premier prototype.</p>
-      <a href="mailto:michaellaunay@logikascium.com" class="btn-white">Écrire un courriel</a>
-      <a href="https://www.linkedin.com/in/michaellaunay19730119/" class="btn-white-outline">LinkedIn</a>
-    </div>
-  </section>
-
-  <!-- ── FOOTER ── -->
   <footer class="contact-footer">
     <div class="container">
       <div class="row g-4">
@@ -788,12 +757,14 @@
           SIREN : 951 223 882
         </div>
         <div class="col-md-4">
-          <p class="mb-1">&copy; 2023–2025 Logikascium. Tous droits réservés.</p>
+          <strong>Contact</strong><br>
+          <a href="mailto:michaellaunay@logikascium.com">michaellaunay@logikascium.com</a><br>
+          &copy; 2023–2026 Logikascium. Tous droits réservés.
         </div>
       </div>
     </div>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
