@@ -35,10 +35,7 @@
     body {
       margin: 0;
       font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background:
-        radial-gradient(circle at 85% 3%, rgba(210,142,70,0.18), transparent 34rem),
-        radial-gradient(circle at 8% 0%, rgba(184,71,45,0.12), transparent 26rem),
-        var(--paper);
+      background: var(--paper);
       color: var(--ink);
       font-size: 16px;
       line-height: 1.7;
@@ -94,6 +91,79 @@
     .navbar-toggler { border: 1px solid var(--border); border-radius: 12px; }
     .navbar-toggler-icon {
       background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2813,17,23,.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+
+
+    /* ── FOND PHOTO AMBIANT ──
+       Photo volontairement désaturée, éclaircie et recouverte d'un voile papier
+       pour animer la page sans nuire à la lecture. */
+    .ambient-photo {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      background: var(--paper);
+    }
+
+    .ambient-photo::before {
+      content: '';
+      position: absolute;
+      inset: -4%;
+      background-image: url("images/IMG_20231002_190811.jpg");
+      background-size: cover;
+      background-position: center 43%;
+      background-repeat: no-repeat;
+      opacity: 0.56;
+      filter: grayscale(22%) sepia(6%) saturate(82%) contrast(74%) brightness(122%) blur(0.7px);
+      transform: scale(1.055);
+      will-change: transform;
+    }
+
+    .ambient-photo::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 78% 3%, rgba(210,142,70,0.18), transparent 30rem),
+        radial-gradient(circle at 5% 5%, rgba(184,71,45,0.10), transparent 26rem),
+        linear-gradient(180deg,
+          rgba(248,245,239,0.76) 0%,
+          rgba(248,245,239,0.70) 28%,
+          rgba(248,245,239,0.78) 62%,
+          rgba(248,245,239,0.88) 100%);
+    }
+
+    body > *:not(.ambient-photo) {
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .ambient-photo::before {
+        animation: ambientPhotoDrift 46s ease-in-out infinite alternate;
+      }
+
+      @keyframes ambientPhotoDrift {
+        from { transform: scale(1.045) translate3d(-0.7%, -0.4%, 0); }
+        to   { transform: scale(1.075) translate3d(0.9%, 0.5%, 0); }
+      }
+    }
+
+    @media (max-width: 768px) {
+      .ambient-photo::before {
+        opacity: 0.42;
+        background-position: center center;
+        filter: grayscale(28%) sepia(6%) saturate(75%) contrast(72%) brightness(124%) blur(0.9px);
+      }
+
+      .ambient-photo::after {
+        background: linear-gradient(180deg,
+          rgba(248,245,239,0.84) 0%,
+          rgba(248,245,239,0.78) 50%,
+          rgba(248,245,239,0.90) 100%);
+      }
     }
 
     section { padding: 6rem 0; }
@@ -569,6 +639,7 @@
   </style>
 </head>
 <body>
+  <div class="ambient-photo" aria-hidden="true"></div>
 
   <nav class="navbar navbar-expand-lg" aria-label="Navigation principale">
     <div class="container">
