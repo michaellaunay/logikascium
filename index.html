@@ -275,6 +275,63 @@
       margin-bottom: 0;
     }
 
+
+    .term-tooltip {
+      position: relative;
+      display: inline-flex;
+      align-items: baseline;
+      cursor: help;
+      color: var(--accent);
+      font-weight: 800;
+      border-bottom: 2px dotted rgba(184,71,45,.45);
+      text-decoration: none;
+    }
+    .term-tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 12px);
+      transform: translateX(-50%) translateY(4px);
+      width: min(430px, 86vw);
+      padding: .95rem 1rem;
+      border-radius: 14px;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      line-height: 1.55;
+      letter-spacing: 0;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 20;
+      transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+    }
+    .term-tooltip::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 4px);
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: var(--ink);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 21;
+      transition: opacity .16s ease, visibility .16s ease;
+    }
+    .term-tooltip:hover::after,
+    .term-tooltip:focus::after,
+    .term-tooltip:hover::before,
+    .term-tooltip:focus::before {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
     .problem-grid,
     .services-grid,
     .why-grid,
@@ -588,8 +645,8 @@
     <section>
       <div class="container">
         <p class="section-label">Notre approche</p>
-        <h2 class="section-title">Un RAG efficace commence avant les embeddings.</h2>
-        <p class="section-intro">Nous construisons une couche documentaire propre, lisible, sourcée et versionnée avant de la connecter à la recherche sémantique et aux LLM.</p>
+        <h2 class="section-title">Un <span class="term-tooltip" tabindex="0" data-tooltip="Le RAG (Retrieval-Augmented Generation, génération augmentée par récupération) permet à une IA de répondre en allant d’abord chercher les bonnes informations dans vos documents, puis en s’en servant pour formuler une réponse fiable et sourcée.">RAG</span> efficace commence avant les <span class="term-tooltip" tabindex="0" data-tooltip="Les embeddings sont des représentations numériques d’un texte, d’une image ou d’un document, qui permettent de comparer leur proximité sémantique dans un espace vectoriel.">embeddings</span>.</h2>
+        <p class="section-intro">Nous construisons une couche documentaire propre, lisible, sourcée et versionnée avant de la connecter à la recherche sémantique et aux <span class="term-tooltip" tabindex="0" data-tooltip="Un LLM (Large Language Model, grand modèle de langage) est une IA entraînée sur de très grands volumes de textes, capable de comprendre une demande et de générer une réponse en langage naturel.">LLM</span>.</p>
         <div class="pipeline-wrap">
           <div class="pipeline">
             <p class="pipeline-caption">Pipeline documentaire</p>
@@ -688,7 +745,7 @@
       <div class="container">
         <p class="section-label">Qui sommes-nous</p>
         <h2 class="section-title">Logikascium, architecture logicielle et IA documentaire.</h2>
-        <p class="section-intro">EURL fondée en 2023, basée à Fretin dans la métropole lilloise, spécialisée dans l’architecture logicielle, les projets documentaires complexes et l’intégration raisonnée de l’IA.</p>
+        <p class="section-intro">Logikascium est une EURL fondée en 2023 qui prolonge le métier d'<a href="./PresentationEcreall.pdf">Ecréall</a> (2005-2023) en l'augmentant par l'IA. Basée dans la métropole lilloise, elle est spécialisée dans l’architecture logicielle, les projets documentaires complexes et l’intégration raisonnée de l’IA.</p>
         <div class="about-profile">
           <img src="./images/PhotoIdentiteFormatNational.png" alt="Portrait de Michaël Launay">
           <div>
