@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Notes publiques de Michaël Launay : cours, fiches techniques et réflexions rédigés dans Obsidian et publiés en Markdown.">
+  <title>Notes publiques | Logikascium</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+
+  <!-- Analyse Markdown, assainissement, coloration, diagrammes, YAML -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+
+  <script src="js/excalidraw-svg.js"></script>
+  <script src="js/notes-viewer.js"></script>
+
+  <style>
+    :root {
+      --ink: #0d1117;
+      --paper: #f8f5ef;
+      --paper-2: #fffdf8;
+      --accent: #b8472d;
+      --rule: rgba(13, 17, 23, .12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.65;
+    }
+    a { color: var(--accent); }
+    header.np-entete {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--paper-2);
+      border-bottom: 1px solid var(--rule);
+    }
+    header.np-entete .np-barre {
+      max-width: 1080px; margin: 0 auto; padding: .9rem 1.25rem;
+      display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
+    }
+    .np-marque {
+      font-weight: 700; text-decoration: none; color: inherit; font-size: 1.05rem;
+    }
+    .np-marque span {
+      display: inline-grid; place-items: center;
+      width: 1.6rem; height: 1.6rem; margin-right: .4rem;
+      border-radius: 6px; background: var(--accent); color: #fff; font-size: .95rem;
+    }
+    header.np-entete nav a {
+      text-decoration: none; color: inherit; opacity: .75; font-size: .95rem;
+      margin-right: 1rem;
+    }
+    header.np-entete nav a:hover { opacity: 1; color: var(--accent); }
+
+    main { max-width: 1080px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+    h1, h2, h3, h4 { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; line-height: 1.25; }
+    h1 { font-size: 2.2rem; margin-top: .5rem; }
+
+    .np-ariane { font-size: .9rem; opacity: .7; margin-bottom: 1.25rem; }
+    .np-attente { opacity: .6; }
+    .np-erreur {
+      border-left: 4px solid var(--accent); padding: .75rem 1.25rem; background: var(--paper-2);
+    }
+
+    /* fiche d'identité issue du frontmatter */
+    .np-meta {
+      background: var(--paper-2); border: 1px solid var(--rule);
+      border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.75rem;
+    }
+    .np-resume { margin: 0 0 .75rem; font-size: 1.05rem; }
+    .np-tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .np-tag, .np-theme {
+      font-size: .8rem; padding: .15rem .6rem; border-radius: 999px;
+      border: 1px solid var(--rule); background: var(--paper);
+    }
+    .np-theme { background: rgba(184, 71, 45, .08); border-color: rgba(184, 71, 45, .25); }
+    .np-source { margin: .75rem 0 0; font-size: .9rem; opacity: .8; }
+
+    .np-toc {
+      float: right; max-width: 280px; margin: 0 0 1rem 1.5rem; padding: .75rem 1rem;
+      border: 1px solid var(--rule); border-radius: 12px; background: var(--paper-2);
+      font-size: .9rem;
+    }
+    .np-toc ul { margin: .5rem 0 0; padding-left: 1.1rem; }
+    .np-toc .np-toc-3 { list-style: none; margin-left: -.6rem; opacity: .8; }
+    @media (max-width: 800px) { .np-toc { float: none; max-width: none; margin: 0 0 1.5rem; } }
+
+    .np-note img { max-width: 100%; height: auto; border-radius: 8px; }
+    .np-note pre {
+      background: var(--paper-2); border: 1px solid var(--rule);
+      border-radius: 10px; padding: 1rem; overflow-x: auto;
+    }
+    .np-note code { font-size: .9em; }
+    .np-note table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    .np-note th, .np-note td { border: 1px solid var(--rule); padding: .45rem .7rem; text-align: left; }
+    .np-note th { background: var(--paper-2); }
+    .np-note blockquote {
+      margin: 1rem 0; padding: .3rem 1.1rem; border-left: 3px solid var(--accent);
+      background: var(--paper-2);
+    }
+    .np-lien-mort { color: inherit; opacity: .55; border-bottom: 1px dotted currentColor; cursor: help; }
+
+    /* dessins */
+    .np-excalidraw { margin: 1.5rem 0; }
+    .np-svg {
+      width: 100%; height: auto; max-height: 78vh;
+      border: 1px solid var(--rule); border-radius: 12px;
+    }
+    .np-svg .np-noeud { cursor: pointer; }
+    .np-svg .np-noeud:hover { filter: drop-shadow(0 0 6px rgba(184, 71, 45, .55)); }
+
+    /* index */
+    .np-recherche {
+      width: 100%; padding: .7rem 1rem; margin-bottom: 2rem; font: inherit;
+      border: 1px solid var(--rule); border-radius: 10px; background: var(--paper-2);
+    }
+    .np-rubrique { margin-bottom: 2.5rem; }
+    .np-rubrique h2 { border-bottom: 1px solid var(--rule); padding-bottom: .35rem; }
+    .np-compte { font-family: Inter, sans-serif; font-size: .8rem; opacity: .55; }
+    .np-liens-index { font-size: .9rem; margin: .25rem 0 .75rem; }
+    .np-carte { margin-right: .75rem; }
+    .np-liste {
+      columns: 2; column-gap: 2.5rem; list-style: none; padding: 0; margin: 0;
+    }
+    .np-liste li { break-inside: avoid; padding: .12rem 0; }
+    .np-liste a { text-decoration: none; }
+    .np-liste a:hover { text-decoration: underline; }
+    @media (max-width: 700px) { .np-liste { columns: 1; } }
+
+    footer.np-pied {
+      border-top: 1px solid var(--rule); background: var(--paper-2);
+      padding: 1.5rem 1.25rem; font-size: .9rem; text-align: center; opacity: .8;
+    }
+  </style>
+</head>
+<body>
+  <header class="np-entete">
+    <div class="np-barre">
+      <a class="np-marque" href="./index.html"><span>L</span>Logikascium</a>
+      <nav>
+        <a href="./index.html">Accueil</a>
+        <a href="./index.html#services">Services</a>
+        <a href="./notes.html">Notes</a>
+        <a href="./index.html#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div id="np-contenu">
+      <p class="np-attente">Chargement…</p>
+    </div>
+  </main>
+
+  <noscript>
+    <p style="max-width:1080px;margin:0 auto;padding:0 1.25rem">
+      Ce lecteur a besoin de JavaScript pour aller chercher les notes.
+      Les fichiers Markdown restent lisibles directement sur
+      <a href="https://github.com/michaellaunay/NotesPubliques">GitHub</a>.
+    </p>
+  </noscript>
+
+  <footer class="np-pied">
+    Notes rédigées dans Obsidian, versionnées dans
+    <a href="https://github.com/michaellaunay/NotesPubliques">NotesPubliques</a>,
+    affichées ici sans étape de compilation.
+  </footer>
+</body>
+</html>

@@ -46,6 +46,30 @@
     .container { max-width: 1160px; }
 
     /* ── LANG SWITCHER ── */
+    #notes { background: var(--paper-2); }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .note-card {
+      display: block;
+      padding: 1.5rem;
+      border: 1px solid rgba(13, 17, 23, .12);
+      border-radius: 14px;
+      background: var(--paper);
+      color: inherit;
+      text-decoration: none;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .note-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 24px rgba(13, 17, 23, .08);
+    }
+    .note-card h4 { margin: 0 0 .4rem; font-weight: 700; }
+    .note-card p { margin: 0; opacity: .78; font-size: .95rem; }
     .lang-switcher {
       display: inline-flex;
       align-items: center;
@@ -363,6 +387,7 @@
           <li class="nav-item"><a class="nav-link" href="#services" data-i18n="nav.services"></a></li>
           <li class="nav-item"><a class="nav-link" href="#methode" data-i18n="nav.method"></a></li>
           <li class="nav-item"><a class="nav-link" href="#about" data-i18n="nav.about"></a></li>
+          <li class="nav-item"><a class="nav-link" href="./notes.html" data-i18n="nav.notes"></a></li>
           <li class="nav-item"><a class="nav-link" href="#contact" data-i18n="nav.contact"></a></li>
           <li class="nav-item ms-lg-2">
             <div class="lang-switcher">
@@ -561,6 +586,41 @@
       </div>
     </section>
 
+    <section id="notes">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title" data-i18n="notes.title"></h2>
+          <p class="section-lead" data-i18n="notes.lead"></p>
+        </div>
+        <div class="notes-grid">
+          <a class="note-card" href="./notes.html">
+            <h4 data-i18n="notes.all.title"></h4>
+            <p data-i18n="notes.all.desc"></p>
+          </a>
+          <a class="note-card" href="./notes.html?dossier=cours">
+            <h4 data-i18n="notes.courses.title"></h4>
+            <p data-i18n="notes.courses.desc"></p>
+          </a>
+          <a class="note-card" href="./notes.html?dossier=informatique">
+            <h4 data-i18n="notes.tech.title"></h4>
+            <p data-i18n="notes.tech.desc"></p>
+          </a>
+          <a class="note-card" href="./notes.html?dossier=r%C3%A9flexions">
+            <h4 data-i18n="notes.essays.title"></h4>
+            <p data-i18n="notes.essays.desc"></p>
+          </a>
+          <a class="note-card" href="./notes.html?note=cours%2F_Cours.md">
+            <h4 data-i18n="notes.map.title"></h4>
+            <p data-i18n="notes.map.desc"></p>
+          </a>
+          <a class="note-card" href="https://github.com/michaellaunay/NotesPubliques" rel="noopener">
+            <h4 data-i18n="notes.repo.title"></h4>
+            <p data-i18n="notes.repo.desc"></p>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <section class="cta-section" id="contact">
       <div class="container">
         <h2 data-i18n-html="cta.title"></h2>
@@ -604,6 +664,7 @@
       "nav.services": "Services",
       "nav.method": "Méthode",
       "nav.about": "À propos",
+      "nav.notes": "Notes",
       "nav.contact": "Contact",
 
       "hero.eyebrow": "GED · RAG · IA documentaire",
@@ -739,6 +800,20 @@
       "notables.5": "Contributions à des projets open source",
       "notables.6": "Pipelines OCR et IA documentaire multimodaux (Biblioteko)",
 
+      "notes.title": "Notes publiques",
+      "notes.lead": "Mon second cerveau, ouvert. Cours, fiches techniques et réflexions sont rédigés en Markdown dans Obsidian, versionnés dans Git, puis publiés tels quels : ce que vous lisez est la note elle-même, pas une adaptation pour le web.",
+      "notes.all.title": "Parcourir toutes les notes",
+      "notes.all.desc": "Index complet, recherche instantanée et navigation par liens entre notes.",
+      "notes.courses.title": "Cours",
+      "notes.courses.desc": "Supports de cours de licence et de master : systèmes, réseaux, Python, IA, architecture logicielle.",
+      "notes.tech.title": "Fiches techniques",
+      "notes.tech.desc": "Procédures, retours d'expérience et notes de veille sur l'écosystème logiciel.",
+      "notes.essays.title": "Réflexions",
+      "notes.essays.desc": "Textes plus libres sur l'informatique, la connaissance et leurs effets.",
+      "notes.map.title": "Cartes et schémas",
+      "notes.map.desc": "Index thématiques et dessins Excalidraw rendus directement dans le navigateur.",
+      "notes.repo.title": "Le dépôt Git",
+      "notes.repo.desc": "Les fichiers Markdown sources, clonables et réutilisables sous licence libre.",
       "pub.title": "Transmission et publications",
       "pub.1": "Cours dispensés depuis 2019, avec supports disponibles sur <a href=\"https://github.com/michaellaunay/NotesPubliques/tree/master/cours\">GitHub</a>.",
       "pub.2": "Article publié dans Linux Pratique sur <a href=\"https://connect.ed-diamond.com/Linux-Pratique/lp-101/organiser-un-brainstorming-geant-l-innovation-participative-en-pratique-avec-nova-ideo\">Nova-Ideo</a>.",
@@ -765,6 +840,7 @@
       "nav.services": "Services",
       "nav.method": "Method",
       "nav.about": "About",
+      "nav.notes": "Notes",
       "nav.contact": "Contact",
 
       "hero.eyebrow": "DMS · RAG · AI-powered documents",
@@ -900,6 +976,20 @@
       "notables.5": "Contributions to multiple open source projects",
       "notables.6": "Multimodal OCR and AI document pipelines (Biblioteko)",
 
+      "notes.title": "Public notes",
+      "notes.lead": "My second brain, in the open. Courses, technical notes and essays are written in Markdown inside Obsidian, versioned in Git, then published as they are: what you read is the note itself, not a web adaptation.",
+      "notes.all.title": "Browse all notes",
+      "notes.all.desc": "Full index, instant search and link-based navigation between notes.",
+      "notes.courses.title": "Courses",
+      "notes.courses.desc": "Undergraduate and master-level material: systems, networks, Python, AI, software architecture.",
+      "notes.tech.title": "Technical notes",
+      "notes.tech.desc": "Procedures, field reports and watch notes on the software ecosystem.",
+      "notes.essays.title": "Essays",
+      "notes.essays.desc": "Freer texts on computing, knowledge and their effects.",
+      "notes.map.title": "Maps and diagrams",
+      "notes.map.desc": "Thematic indexes and Excalidraw drawings rendered right in the browser.",
+      "notes.repo.title": "The Git repository",
+      "notes.repo.desc": "The source Markdown files, clonable and reusable under a free licence.",
       "pub.title": "Teaching & publications",
       "pub.1": "Courses taught since 2019, materials available on <a href=\"https://github.com/michaellaunay/NotesPubliques/tree/master/cours\">GitHub</a>.",
       "pub.2": "Article published in Linux Pratique on <a href=\"https://connect.ed-diamond.com/Linux-Pratique/lp-101/organiser-un-brainstorming-geant-l-innovation-participative-en-pratique-avec-nova-ideo\">Nova-Ideo</a>.",
