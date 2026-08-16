@@ -29,27 +29,41 @@
   const HORS_COFFRE = /^(README|LICENSE|CNAME|Versions)$/i;
 
   /* ------------------------------------------------------------ index ---- */
-  let INDEX = null; // [{chemin, nom, dossier}]
+  let INDEX = null;    // [{chemin, nom, dossier}]
+  let FICHIERS = null; // {nomDeFichier: [chemins]}
 
   async function chargerIndex() {
     if (INDEX) return INDEX;
     const cache = sessionStorage.getItem("np-index");
     if (cache) {
-      INDEX = JSON.parse(cache);
+      const c = JSON.parse(cache);
+      INDEX = c.index;
+      FICHIERS = c.fichiers;
       return INDEX;
     }
     const rep = await fetch(API);
     if (!rep.ok) throw new Error(`index indisponible (HTTP ${rep.status})`);
     const arbre = await rep.json();
-    INDEX = (arbre.tree || [])
-      .filter((n) => n.type === "blob" && n.path.endsWith(".md"))
+    const blobs = (arbre.tree || []).filter((n) => n.type === "blob");
+    INDEX = blobs
+      .filter((n) => n.path.endsWith(".md"))
       .map((n) => ({
         chemin: n.path,
         nom: n.path.replace(/\.md$/, "").split("/").pop(),
         dossier: n.path.includes("/") ? n.path.split("/").slice(0, -1).join("/") : "",
       }));
+    // Les pièces jointes doivent être indexées elles aussi : les dessins
+    // Excalidraw référencent leurs images par nom de fichier, pas par chemin.
+    FICHIERS = {};
+    for (const n of blobs) {
+      if (n.path.endsWith(".md")) continue;
+      const nom = n.path.split("/").pop();
+      if (!(nom in FICHIERS)) FICHIERS[nom] = [];
+      FICHIERS[nom].push(n.path);
+    }
     try {
-      sessionStorage.setItem("np-index", JSON.stringify(INDEX));
+      sessionStorage.setItem("np-index",
+        JSON.stringify({ index: INDEX, fichiers: FICHIERS }));
     } catch (e) {
       /* quota dépassé : on se passe du cache */
     }
@@ -69,6 +83,26 @@
     if (candidats.length === 1) return candidats[0].chemin;
     const local = candidats.find((n) => n.dossier === dossierCourant);
     return (local || candidats[0]).chemin;
+  }
+
+  /** Résout une pièce jointe (image, dessin) vers son URL brute.
+   *  Comme pour les notes, l'homonymie est tranchée par la proximité de dossier. */
+  function resoudreFichier(cible, dossierCourant) {
+    if (!FICHIERS || !cible) return null;
+    let nom = cible.replace(/^!?\[\[|\]\]$/g, "").trim();
+    if (/\.excalidraw$/i.test(nom)) nom += ".md";
+    const direct = nom.includes("/") ? nom : null;
+    let chemin = null;
+    if (direct && (FICHIERS[direct.split("/").pop()] || []).includes(direct)) {
+      chemin = direct;
+    } else {
+      const candidats = FICHIERS[nom.split("/").pop()] || [];
+      if (!candidats.length) return null;
+      chemin = candidats.find((c) => c.startsWith(dossierCourant + "/")) ||
+        candidats.find((c) => c.split("/").slice(0, -1).join("/").startsWith(dossierCourant)) ||
+        candidats[0];
+    }
+    return BRUT + chemin.split("/").map(encodeURIComponent).join("/");
   }
 
   /* ------------------------------------------------------- frontmatter ---- */
@@ -243,9 +277,14 @@
 
   async function rendreExcalidraw(racine) {
     for (const noeud of racine.querySelectorAll(".np-excalidraw[data-src]")) {
+      const src = noeud.dataset.src;
+      const dossier = src.includes("/") ? src.split("/").slice(0, -1).join("/") : "";
       try {
-        const brut = await lire(noeud.dataset.src);
-        noeud.innerHTML = window.excalidrawVersSVG(brut, { lien: (c) => "?note=" + encodeURIComponent(c) });
+        const brut = await lire(src);
+        noeud.innerHTML = window.excalidrawVersSVG(brut, {
+          lien: (c) => "?note=" + encodeURIComponent(resoudre(c, dossier) || c),
+          fichier: (nom) => resoudreFichier(nom, dossier),
+        });
       } catch (e) {
         noeud.innerHTML = `<p class="np-erreur">Dessin illisible : ${e.message}</p>`;
       }

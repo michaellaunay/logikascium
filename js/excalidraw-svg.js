@@ -22,6 +22,29 @@
     5: "Excalifont, Virgil, cursive",
   };
 
+  /* Le greffon Obsidian ne met pas les images dans le JSON : il les laisse dans
+   * le coffre et note la correspondance sous « # Embedded files » :
+   *
+   *     e70207d5…: [[robot_codant_en_python.png]]
+   *
+   * Sans lire cette section, tous les éléments `image` sont vides — ce qui donne
+   * un schéma de rectangles de couleur sans son contenu. */
+  function extraireFichiersIntegres(brut) {
+    const table = {};
+    // Attention au drapeau `m` : avec lui, `$` vaut fin de *ligne*, et la
+    // capture s'arrêterait donc à la première entrée. On ferme sur « fin de
+    // chaîne » explicitement.
+    const bloc = brut.match(
+      /^#[ \t]*Embedded files[ \t]*\n([\s\S]*?)(?=\n%%|\n#[ \t]|\n```|(?![\s\S]))/m);
+    if (!bloc) return table;
+    const re = /^([0-9a-f]{8,}):\s*(?:\[\[(.+?)\]\]|(\S+))\s*$/gim;
+    let m;
+    while ((m = re.exec(bloc[1])) !== null) {
+      table[m[1]] = (m[2] || m[3] || "").trim();
+    }
+    return table;
+  }
+
   function extraireJSON(brut) {
     let m = brut.match(/```json\s*\n([\s\S]*?)\n```/);
     if (m) return JSON.parse(m[1]);
@@ -109,6 +132,41 @@
       `opacity="${(e.opacity == null ? 100 : e.opacity) / 100}"${fleche}${debut}/>`;
   }
 
+  /** Cadre de remplacement pour une image que l'on n'a pas su résoudre.
+   *  Mieux vaut un cadre nommé qu'un trou : on voit qu'il manque quelque chose,
+   *  et on sait quoi. */
+  function cadreAbsent(e, nom) {
+    const etiquette = nom ? nom.split("/").pop() : "image absente";
+    return `<g${rotation(e)}><rect x="${e.x}" y="${e.y}" width="${e.width}" ` +
+      `height="${e.height}" rx="6" fill="#f1f3f5" stroke="#adb5bd" ` +
+      `stroke-width="1" stroke-dasharray="6 4"/>` +
+      `<text x="${e.x + e.width / 2}" y="${e.y + e.height / 2}" font-size="13" ` +
+      `font-family="Helvetica, sans-serif" fill="#868e96" text-anchor="middle">` +
+      `${ech(etiquette)}</text></g>`;
+  }
+
+  /** Les éléments « embeddable » sont des pages web incrustées. On ne peut pas
+   *  les charger ici — la plupart des sites refusent d'être placés en cadre — et
+   *  on ne veut pas exécuter du tiers dans la page. On rend donc une vignette
+   *  cliquable qui ouvre la ressource dans un nouvel onglet. */
+  function cadreEmbarque(e) {
+    const url = e.link || "";
+    let hote = "";
+    try { hote = url ? new URL(url).hostname.replace(/^www\./, "") : ""; } catch (err) { hote = url; }
+    const corps =
+      `<rect x="${e.x}" y="${e.y}" width="${e.width}" height="${e.height}" rx="8" ` +
+      `fill="#ffffff" stroke="#4dabf7" stroke-width="1.5"/>` +
+      `<rect x="${e.x}" y="${e.y}" width="${e.width}" height="26" rx="8" fill="#e7f5ff"/>` +
+      `<text x="${e.x + 10}" y="${e.y + 18}" font-size="12" ` +
+      `font-family="Helvetica, sans-serif" fill="#1971c2">${ech(hote || "lien")}</text>` +
+      `<text x="${e.x + e.width / 2}" y="${e.y + e.height / 2 + 8}" font-size="14" ` +
+      `font-family="Helvetica, sans-serif" fill="#495057" text-anchor="middle">` +
+      `Ouvrir la ressource</text>`;
+    return url
+      ? `<a href="${ech(url)}" target="_blank" rel="noopener" class="np-noeud">${corps}</a>`
+      : corps;
+  }
+
   function dessiner(e, fichiers) {
     switch (e.type) {
       case "rectangle": {
@@ -134,10 +192,17 @@
         return texte(e);
       case "image": {
         const f = fichiers && fichiers[e.fileId];
-        if (!f || !f.dataURL) return "";
-        return `<image x="${e.x}" y="${e.y}" width="${e.width}" height="${e.height}" ` +
-          `href="${ech(f.dataURL)}"${rotation(e)}/>`;
+        const url = (f && f.dataURL) || (f && f.url) || null;
+        if (!url) return cadreAbsent(e, f && f.nom);
+        const clip = `clip-${e.id}`;
+        return `<clipPath id="${clip}"><rect x="${e.x}" y="${e.y}" ` +
+          `width="${e.width}" height="${e.height}" rx="6"/></clipPath>` +
+          `<image x="${e.x}" y="${e.y}" width="${e.width}" height="${e.height}" ` +
+          `preserveAspectRatio="xMidYMid slice" clip-path="url(#${clip})" ` +
+          `href="${ech(url)}"${rotation(e)}/>`;
       }
+      case "embeddable":
+        return cadreEmbarque(e);
       default:
         return "";
     }
@@ -150,13 +215,23 @@
   function excalidrawVersSVG(brut, options) {
     options = options || {};
     const versLien = options.lien || ((c) => "?note=" + encodeURIComponent(c));
+    const versFichier = options.fichier || (() => null);
     const doc = extraireJSON(brut);
     const elements = (doc.elements || []).filter((e) => !e.isDeleted);
+
+    // Les images du coffre l'emportent sur `files`, qui est vide dans les
+    // fichiers produits par Obsidian.
+    const fichiers = Object.assign({}, doc.files || {});
+    const integres = extraireFichiersIntegres(brut);
+    for (const [id, nom] of Object.entries(integres)) {
+      const url = versFichier(nom);
+      fichiers[id] = Object.assign({ nom: nom }, fichiers[id] || {}, url ? { url: url } : {});
+    }
     const b = boite(elements);
     const fond = (doc.appState && doc.appState.viewBackgroundColor) || "#ffffff";
 
     const corps = elements.map((e) => {
-      const svg = dessiner(e, doc.files);
+      const svg = dessiner(e, fichiers);
       if (!svg) return "";
       const brutLien = e.link || "";
       const m = brutLien.match(/^\[\[(.+?)(?:\|.*)?\]\]$/);
