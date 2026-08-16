@@ -242,6 +242,21 @@
     }
 
     const { meta, corps } = separerFrontmatter(texte);
+
+    // Garde-fou : une note qui traverse encore le filtre de publication ne doit
+    // pas s'afficher ici. Ce n'est pas une protection — le fichier reste dans le
+    // dépôt et dans son historique — mais cela évite qu'une note retirée reste
+    // lisible par son URL directe entre deux réécritures d'historique.
+    if (meta && (meta.confidentialite !== "publique"
+                 || !(meta.publication || []).includes("notes-publiques"))) {
+      cible.innerHTML = fildAriane(chemin) + `<div class="np-erreur">
+        <h2>Note non publiée</h2>
+        <p>Cette note porte <code>confidentialite: ${meta.confidentialite || "—"}</code>
+           et n'est pas destinée au domaine public.</p>
+        <p><a href="?">Revenir à l'index</a></p></div>`;
+      document.title = "Note non publiée — Logikascium";
+      return;
+    }
     const md = transformerLiensObsidian(corps, dossier);
     const html = DOMPurify.sanitize(marked.parse(md), {
       ADD_TAGS: ["foreignObject"],
