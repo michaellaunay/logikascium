@@ -25,6 +25,8 @@
   const BRUT = `https://raw.githubusercontent.com/${DEPOT.proprietaire}/${DEPOT.nom}/${DEPOT.branche}/`;
   const API = `https://api.github.com/repos/${DEPOT.proprietaire}/${DEPOT.nom}/git/trees/${DEPOT.branche}?recursive=1`;
   const ACCUEIL = "_INDEX PRINCIPAL.md";
+  // Fichiers présents dans le dépôt mais qui ne sont pas des notes du coffre.
+  const HORS_COFFRE = /^(README|LICENSE|CNAME|Versions)$/i;
 
   /* ------------------------------------------------------------ index ---- */
   let INDEX = null; // [{chemin, nom, dossier}]
@@ -265,7 +267,11 @@
 
     const parDossier = {};
     for (const n of INDEX) {
-      if (n.nom.startsWith("_") && !n.nom.startsWith("_INDEX")) continue;
+      // les index et les dessins ne sont pas des notes : ils sont proposés
+      // séparément, en tête de rubrique
+      if (n.nom.startsWith("_")) continue;
+      if (n.chemin.endsWith(".excalidraw.md")) continue;
+      if (HORS_COFFRE.test(n.nom)) continue;
       const racine = n.dossier.split("/")[0] || "(racine)";
       if (filtreDossier && racine !== filtreDossier) continue;
       (parDossier[racine] = parDossier[racine] || []).push(n);
@@ -288,9 +294,12 @@
         <ul class="np-liste">${notes}</ul></section>`;
     });
 
+    const compte = Object.values(parDossier).reduce((s, v) => s + v.length, 0);
+    const principal = INDEX.find((n) => n.chemin === ACCUEIL)
+      ? ` · <a href="?note=${encodeURIComponent(ACCUEIL)}">index principal</a>` : "";
     cible.innerHTML = `
-      <p class="np-ariane"><b>Notes publiques</b> — ${INDEX.length} notes issues du dépôt
-        <a href="https://github.com/${DEPOT.proprietaire}/${DEPOT.nom}" rel="noopener">NotesPubliques</a></p>
+      <p class="np-ariane"><b>Notes publiques</b> — ${compte} notes issues du dépôt
+        <a href="https://github.com/${DEPOT.proprietaire}/${DEPOT.nom}" rel="noopener">NotesPubliques</a>${principal}</p>`.trim() + `
       <input id="np-recherche" class="np-recherche" type="search"
              placeholder="Filtrer les notes…" autocomplete="off">
       ${blocs.join("")}`;
@@ -324,8 +333,12 @@
     } else if (p.get("dossier")) {
       await afficherIndex(p.get("dossier"));
     } else {
-      const accueil = INDEX.find((n) => n.chemin === ACCUEIL);
-      accueil ? await afficherNote(ACCUEIL) : await afficherIndex(null);
+      // L'accueil est le listing construit depuis le dépôt, et non
+      // « _INDEX PRINCIPAL.md ». Cet index est généré à partir du coffre privé :
+      // il renvoie vers des dossiers qui ne sont pas publiés, et afficherait donc
+      // une majorité de liens morts. Le listing, lui, ne peut montrer que ce qui
+      // existe réellement ici.
+      await afficherIndex(null);
     }
   }
 
