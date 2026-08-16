@@ -32,17 +32,40 @@
   let INDEX = null;    // [{chemin, nom, dossier}]
   let FICHIERS = null; // {nomDeFichier: [chemins]}
 
+  // La clé porte un numéro de version. Sans lui, un cache écrit par une version
+  // antérieure — un simple tableau, là où l'on attend maintenant {index, fichiers}
+  // — laisse INDEX à undefined, et la première boucle lève une TypeError qui fige
+  // la page sur « Chargement… ». Changer la forme d'un cache impose de changer sa clé.
+  const CLE_CACHE = "np-index-v2";
+
+  function cacheValide(c) {
+    return c && Array.isArray(c.index) && c.fichiers && typeof c.fichiers === "object";
+  }
+
   async function chargerIndex() {
     if (INDEX) return INDEX;
-    const cache = sessionStorage.getItem("np-index");
-    if (cache) {
-      const c = JSON.parse(cache);
-      INDEX = c.index;
-      FICHIERS = c.fichiers;
-      return INDEX;
+    try {
+      const brut = sessionStorage.getItem(CLE_CACHE);
+      if (brut) {
+        const c = JSON.parse(brut);
+        if (cacheValide(c)) {
+          INDEX = c.index;
+          FICHIERS = c.fichiers;
+          return INDEX;
+        }
+        sessionStorage.removeItem(CLE_CACHE);
+      }
+      sessionStorage.removeItem("np-index"); // purge de l'ancienne clé
+    } catch (e) {
+      /* sessionStorage indisponible : on recharge depuis le réseau */
     }
     const rep = await fetch(API);
-    if (!rep.ok) throw new Error(`index indisponible (HTTP ${rep.status})`);
+    if (!rep.ok) {
+      throw new Error(rep.status === 403 || rep.status === 429
+        ? "l'API GitHub a temporairement limité les requêtes depuis cette adresse "
+          + "(quota horaire). Réessayez dans quelques minutes."
+        : `index indisponible (HTTP ${rep.status})`);
+    }
     const arbre = await rep.json();
     const blobs = (arbre.tree || []).filter((n) => n.type === "blob");
     INDEX = blobs
@@ -62,7 +85,7 @@
       FICHIERS[nom].push(n.path);
     }
     try {
-      sessionStorage.setItem("np-index",
+      sessionStorage.setItem(CLE_CACHE,
         JSON.stringify({ index: INDEX, fichiers: FICHIERS }));
     } catch (e) {
       /* quota dépassé : on se passe du cache */
@@ -371,14 +394,32 @@
   }
 
   /* ------------------------------------------------------------ route ---- */
+  function afficherPanne(titre, message) {
+    document.getElementById("np-contenu").innerHTML =
+      `<div class="np-erreur"><h2>${titre}</h2><p>${message}</p>
+       <p>Les fichiers restent lisibles sur
+          <a href="https://github.com/${DEPOT.proprietaire}/${DEPOT.nom}"
+             rel="noopener">GitHub</a>.</p></div>`;
+  }
+
   async function router() {
+    try {
+      await routerInterne();
+    } catch (e) {
+      // Filet de sécurité : une exception non rattrapée laisserait la page
+      // bloquée sur « Chargement… », ce qui est le pire des messages d'erreur.
+      console.error(e);
+      afficherPanne("Une erreur est survenue", e.message || String(e));
+    }
+  }
+
+  async function routerInterne() {
     const p = new URLSearchParams(location.search);
     const note = p.get("note") || p.get("file");
     try {
       await chargerIndex();
     } catch (e) {
-      document.getElementById("np-contenu").innerHTML =
-        `<div class="np-erreur"><h2>Index indisponible</h2><p>${e.message}</p></div>`;
+      afficherPanne("Index indisponible", e.message);
       return;
     }
     if (note) {
