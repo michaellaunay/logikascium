@@ -307,9 +307,39 @@
       try { mermaid.run({ querySelector: ".np-note .mermaid" }); } catch (e) { /* ignore */ }
     }
     await rendreExcalidraw(cible);
+    rendreFormules(rendu);
     if (location.hash) {
       const c = document.getElementById(decodeURIComponent(location.hash.slice(1)));
       if (c) c.scrollIntoView();
+    }
+  }
+
+  /** Rend les formules LaTeX après le passage de Markdown.
+   *
+   *  L'ordre importe : appliquer KaTeX avant Markdown lui ferait avaler les
+   *  underscores et les accolades comme de l'emphase. On assainit d'abord, on
+   *  compose les formules ensuite — DOMPurify laisserait de toute façon passer
+   *  le HTML produit par KaTeX, qui est du balisage de présentation.
+   *
+   *  Les blocs de code sont exclus : « $x$ » dans un exemple shell est un nom de
+   *  variable, pas une formule.
+   */
+  function rendreFormules(racine) {
+    if (!racine || typeof renderMathInElement !== "function") return;
+    try {
+      renderMathInElement(racine, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "\\[", right: "\\]", display: true },
+          { left: "$", right: "$", display: false },
+          { left: "\\(", right: "\\)", display: false },
+        ],
+        ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+        throwOnError: false,
+        errorColor: "#b8472d",
+      });
+    } catch (e) {
+      console.warn("KaTeX indisponible :", e);
     }
   }
 

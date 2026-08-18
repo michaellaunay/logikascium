@@ -18,6 +18,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 
+  <!-- Formules mathématiques. auto-render repère $…$ et $$…$$ après le rendu
+       Markdown ; KaTeX est retenu plutôt que MathJax pour son temps de rendu,
+       la page pouvant contenir plusieurs dizaines de formules. -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"></script>
+
   <script src="js/excalidraw-svg.js"></script>
   <script src="js/notes-viewer.js"></script>
 
@@ -103,6 +110,10 @@
     .np-note table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
     .np-note th, .np-note td { border: 1px solid var(--rule); padding: .45rem .7rem; text-align: left; }
     .np-note th { background: var(--paper-2); }
+    .np-note .katex { font-size: 1.05em; }
+    .np-note .katex-display {
+      margin: 1.25rem 0; padding: .5rem 0; overflow-x: auto; overflow-y: hidden;
+    }
     .np-note blockquote {
       margin: 1rem 0; padding: .3rem 1.1rem; border-left: 3px solid var(--accent);
       background: var(--paper-2);
