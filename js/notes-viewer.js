@@ -10,6 +10,12 @@
  *   - coloration syntaxique, Mermaid, tables ;
  *   - rendu des dessins Excalidraw d'Obsidian, en note entière comme en
  *     transclusion ![[schema.excalidraw]] ;
+ *   - transclusion de notes et de sections, ![[Note]] et ![[Note#Section]],
+ *     telle qu'Obsidian l'affiche — c'est ainsi que sont composés les
+ *     « Livres de cours » ;
+ *   - callouts Obsidian (> [!info] Titre) rendus comme des encadrés ;
+ *   - index hiérarchique pour les dossiers à sous-dossiers (un livre par
+ *     sous-dossier, son sommaire en tête) ;
  *   - sommaire, recherche plein texte, navigation clavier.
  *
  * Aucune étape de compilation : le fichier se charge tel quel dans la page.
@@ -128,6 +134,29 @@
     return BRUT + chemin.split("/").map(encodeURIComponent).join("/");
   }
 
+  /* ---------------------------------------------------------- ancres ---- */
+  /** Une seule règle d'ancre pour les liens [[Note#Section]], les identifiants
+   *  des titres et le sommaire : sans cela, un lien vers une section n'atterrit
+   *  jamais au bon endroit. Les accents sont conservés (ce sont des ids valides). */
+  function slug(texte) {
+    return String(texte).trim().toLowerCase()
+      .replace(/[`*_~]/g, "")
+      .replace(/[^\w\u00C0-\u017F]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function attr(valeur) {
+    return String(valeur).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+
+  /** Donne un id à chaque titre ; un préfixe sépare les titres d'une note
+   *  transcluse de ceux de la note hôte. */
+  function identifierTitres(racine, prefixe) {
+    racine.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((h) => {
+      if (!h.id) h.id = (prefixe ? prefixe + "--" : "") + slug(h.textContent);
+    });
+  }
+
   /* ------------------------------------------------------- frontmatter ---- */
   function separerFrontmatter(texte) {
     if (!texte.startsWith("---\n")) return { meta: null, corps: texte };
@@ -183,8 +212,10 @@
   /** Les liens et transclusions Obsidian sont traités AVANT Markdown,
    *  sinon `[[a|b]]` est mangé par l'analyseur de liens standard. */
   function transformerLiensObsidian(md, dossier) {
-    // transclusion d'image ou de dessin : ![[fichier]]
-    md = md.replace(/!\[\[([^\]|#]+?)(?:\|([^\]]*))?\]\]/g, (m, cible, alias) => {
+    // transclusion : ![[fichier]] pour une image ou un dessin, ![[Note]] ou
+    // ![[Note#Section]] pour du contenu, rendu après coup par rendreTransclusions
+    md = md.replace(/!\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, (m, cibleBrute, alias) => {
+      const [cible, ancre] = cibleBrute.split("#");
       const propre = cible.trim();
       if (/\.excalidraw(\.md)?$/i.test(propre)) {
         const chemin = resoudre(propre.endsWith(".md") ? propre : propre + ".md", dossier);
@@ -195,14 +226,16 @@
         return `![${alias || propre}](${BRUT}${rel.split("/").map(encodeURIComponent).join("/")})`;
       }
       const chemin = resoudre(propre, dossier);
-      return chemin ? `[${alias || propre}](?note=${encodeURIComponent(chemin)})` : `*${alias || propre}*`;
+      if (!chemin) return `*(note non publiée : ${propre}${ancre ? " › " + ancre.trim() : ""})*`;
+      const a = ancre ? ` data-ancre="${attr(ancre.trim())}"` : "";
+      return `\n<div class="np-transclusion" data-note="${attr(chemin)}"${a}></div>\n`;
     });
     // lien simple : [[cible|alias]]
     md = md.replace(/\[\[([^\]|#]+?)(?:#([^\]|]+))?(?:\|([^\]]*))?\]\]/g, (m, cible, ancre, alias) => {
       const chemin = resoudre(cible.trim(), dossier);
       const texte = alias || cible.trim();
       if (!chemin) return `<span class="np-lien-mort" title="note non publiée">${texte}</span>`;
-      const frag = ancre ? "#" + encodeURIComponent(ancre.trim().toLowerCase().replace(/\s+/g, "-")) : "";
+      const frag = ancre ? "#" + encodeURIComponent(slug(ancre)) : "";
       return `[${texte}](?note=${encodeURIComponent(chemin)}${frag})`;
     });
     return md;
@@ -222,7 +255,7 @@
     const titres = [...racine.querySelectorAll("h2, h3")];
     if (titres.length < 3) return "";
     const items = titres.map((h) => {
-      if (!h.id) h.id = h.textContent.trim().toLowerCase().replace(/[^\w\u00C0-\u017F]+/g, "-");
+      if (!h.id) h.id = slug(h.textContent);
       const cls = h.tagName === "H3" ? ' class="np-toc-3"' : "";
       return `<li${cls}><a href="#${h.id}">${h.textContent}</a></li>`;
     });
@@ -240,7 +273,8 @@
   function fildAriane(chemin) {
     const morceaux = chemin.replace(/\.md$/, "").split("/");
     const nom = morceaux.pop();
-    const dossiers = morceaux.map((d) => `<a href="?dossier=${encodeURIComponent(d)}">${d}</a>`).join(" › ");
+    const dossiers = morceaux.map((d, i) =>
+      `<a href="?dossier=${encodeURIComponent(morceaux.slice(0, i + 1).join("/"))}">${d}</a>`).join(" › ");
     return `<p class="np-ariane"><a href="?">Notes</a>${dossiers ? " › " + dossiers : ""} › <b>${nom}</b></p>`;
   }
 
@@ -281,10 +315,7 @@
       return;
     }
     const md = transformerLiensObsidian(corps, dossier);
-    const html = DOMPurify.sanitize(marked.parse(md), {
-      ADD_TAGS: ["foreignObject"],
-      ADD_ATTR: ["target", "data-src"],
-    });
+    const html = assainir(marked.parse(md));
 
     const titre = (meta && meta.titre) || chemin.replace(/\.md$/, "").split("/").pop();
     document.title = `${titre} — Notes | Logikascium`;
@@ -293,24 +324,143 @@
     article.className = "np-note";
     article.innerHTML = html;
     reecrireImagesRelatives(article, dossier);
+    identifierTitres(article, "");
+    rendreCallouts(article);
 
     cible.innerHTML = fildAriane(chemin) + carteMeta(meta) + sommaire(article) + article.outerHTML;
 
     const rendu = cible.querySelector(".np-note");
-    if (window.mermaid) {
-      rendu.querySelectorAll("pre code.language-mermaid, pre code.mermaid").forEach((c, i) => {
-        const d = document.createElement("div");
-        d.className = "mermaid";
-        d.textContent = c.textContent;
-        c.closest("pre").replaceWith(d);
-      });
-      try { mermaid.run({ querySelector: ".np-note .mermaid" }); } catch (e) { /* ignore */ }
-    }
+    await rendreTransclusions(rendu, [chemin]);
+    rendreMermaid(rendu);
     await rendreExcalidraw(cible);
     rendreFormules(rendu);
     if (location.hash) {
       const c = document.getElementById(decodeURIComponent(location.hash.slice(1)));
       if (c) c.scrollIntoView();
+    }
+  }
+
+  function assainir(html) {
+    return DOMPurify.sanitize(html, {
+      ADD_TAGS: ["foreignObject"],
+      ADD_ATTR: ["target", "data-src", "data-note", "data-ancre"],
+    });
+  }
+
+  function rendreMermaid(racine) {
+    if (!window.mermaid || !racine) return;
+    racine.querySelectorAll("pre code.language-mermaid, pre code.mermaid").forEach((c) => {
+      const d = document.createElement("div");
+      d.className = "mermaid";
+      d.textContent = c.textContent;
+      c.closest("pre").replaceWith(d);
+    });
+    try { mermaid.run({ querySelector: ".np-note .mermaid" }); } catch (e) { /* ignore */ }
+  }
+
+  /* ---------------------------------------------------------- callouts ---- */
+  const CALLOUTS = {
+    info: "Info", tip: "Conseil", note: "Note", abstract: "Résumé", summary: "Résumé",
+    warning: "Attention", danger: "Danger", error: "Erreur", example: "Exemple",
+    quote: "Citation", question: "Question", success: "Succès", failure: "Échec",
+    bug: "Bogue", todo: "À faire",
+  };
+
+  /** Un callout Obsidian est une citation dont la première ligne est
+   *  « [!type] Titre ». Markdown en fait un blockquote ordinaire ; on le
+   *  transforme en encadré typé après assainissement. */
+  function rendreCallouts(racine) {
+    racine.querySelectorAll("blockquote").forEach((bq) => {
+      const p = bq.querySelector(":scope > p");
+      if (!p) return;
+      const m = p.innerHTML.match(/^\[!([\w-]+)\][+-]?[ \t]*([^<\n]*)(?:\n|<br\s*\/?>\n?|$)/i);
+      if (!m) return;
+      const type = m[1].toLowerCase();
+      const titre = (m[2] || "").trim() || CALLOUTS[type] || type;
+      p.innerHTML = p.innerHTML.slice(m[0].length);
+      if (!p.innerHTML.trim()) p.remove();
+      const div = document.createElement("div");
+      div.className = `np-callout np-callout-${type}`;
+      div.innerHTML = `<p class="np-callout-titre">${titre}</p>`;
+      while (bq.firstChild) div.appendChild(bq.firstChild);
+      bq.replaceWith(div);
+    });
+  }
+
+  /* ---------------------------------------------------- transclusions ---- */
+  const CACHE_NOTES = new Map();
+
+  function lireEnCache(chemin) {
+    if (!CACHE_NOTES.has(chemin)) CACHE_NOTES.set(chemin, lire(chemin));
+    return CACHE_NOTES.get(chemin);
+  }
+
+  /** La section « ancre » d'une note : du titre correspondant jusqu'au
+   *  prochain titre de niveau égal ou supérieur, blocs de code exclus de la
+   *  détection. null si le titre n'existe pas. */
+  function extraireSection(corps, ancre) {
+    const lignes = corps.split("\n");
+    const voulu = slug(ancre);
+    let dansCode = false, debut = -1, niveau = 0;
+    for (let i = 0; i < lignes.length; i++) {
+      const l = lignes[i];
+      if (/^\s*```/.test(l)) { dansCode = !dansCode; continue; }
+      if (dansCode) continue;
+      const m = l.match(/^(#{1,6})\s+(.*)$/);
+      if (!m) continue;
+      if (debut === -1) {
+        if (slug(m[2]) === voulu) { debut = i; niveau = m[1].length; }
+      } else if (m[1].length <= niveau) {
+        return lignes.slice(debut, i).join("\n");
+      }
+    }
+    return debut === -1 ? null : lignes.slice(debut).join("\n");
+  }
+
+  /** Remplace chaque emplacement ![[Note]] / ![[Note#Section]] par le contenu
+   *  rendu de la note, avec un en-tête qui mène à la source. La pile des notes
+   *  en cours empêche les boucles ; la profondeur est bornée. */
+  async function rendreTransclusions(racine, pile) {
+    for (const noeud of racine.querySelectorAll(".np-transclusion[data-note]")) {
+      if (noeud.dataset.rendu) continue;
+      noeud.dataset.rendu = "1";
+      const chemin = noeud.dataset.note;
+      const ancre = noeud.dataset.ancre || "";
+      const nom = chemin.replace(/\.md$/, "").split("/").pop();
+      const dossier = chemin.includes("/") ? chemin.split("/").slice(0, -1).join("/") : "";
+      if (pile.includes(chemin) || pile.length > 3) {
+        noeud.innerHTML = `<p class="np-erreur">Transclusion circulaire ou trop profonde : ${nom}</p>`;
+        continue;
+      }
+      let texte;
+      try {
+        texte = await lireEnCache(chemin);
+      } catch (e) {
+        noeud.innerHTML = `<p class="np-erreur">Note transcluse indisponible : ${e.message}</p>`;
+        continue;
+      }
+      const { meta, corps } = separerFrontmatter(texte);
+      if (meta && (meta.confidentialite !== "publique"
+                   || !(meta.publication || []).includes("notes-publiques"))) {
+        noeud.innerHTML = `<p class="np-erreur">Note non publiée : ${nom}</p>`;
+        continue;
+      }
+      const md = ancre ? extraireSection(corps, ancre) : corps;
+      if (md === null) {
+        noeud.innerHTML = `<p class="np-erreur">Section « ${ancre} » introuvable dans ${nom}</p>`;
+        continue;
+      }
+      const lien = `?note=${encodeURIComponent(chemin)}${ancre ? "#" + encodeURIComponent(slug(ancre)) : ""}`;
+      noeud.innerHTML = `<p class="np-transclusion-source">↪ <a href="${lien}">${nom}${ancre ? " › " + ancre : ""}</a></p>`
+        + `<div class="np-transclusion-corps">${assainir(marked.parse(transformerLiensObsidian(md, dossier)))}</div>`;
+      const bloc = noeud.querySelector(".np-transclusion-corps");
+      reecrireImagesRelatives(bloc, dossier);
+      identifierTitres(bloc, slug(nom));
+      rendreCallouts(bloc);
+      await rendreTransclusions(bloc, [...pile, chemin]);
+      rendreMermaid(bloc);
+      await rendreExcalidraw(bloc);
+      rendreFormules(bloc);
     }
   }
 
@@ -363,8 +513,30 @@
   const RUBRIQUES = {
     cours: "Cours", informatique: "Informatique", sciences: "Sciences",
     "réflexions": "Réflexions", "Idées et concepts": "Idées et concepts",
-    meetup: "Meetups", templates: "Modèles",
+    meetup: "Meetups", templates: "Modèles", "Livres de cours": "Livres de cours",
   };
+
+  function trierNotes(a, b) {
+    // le sommaire d'un livre d'abord, puis l'ordre des chapitres (01, 02, … 10)
+    const sa = / — Sommaire$/.test(a.nom), sb = / — Sommaire$/.test(b.nom);
+    if (sa !== sb) return sa ? -1 : 1;
+    return a.nom.localeCompare(b.nom, "fr", { numeric: true });
+  }
+
+  /** Liste d'une rubrique. Quand la rubrique contient des sous-dossiers — un
+   *  livre par sous-dossier — chacun forme un groupe titré, son sommaire en tête. */
+  function listerRubrique(racineDossier, notes) {
+    const sous = {};
+    for (const n of notes) (sous[n.dossier] = sous[n.dossier] || []).push(n);
+    const cles = Object.keys(sous).sort((a, b) => a.localeCompare(b, "fr"));
+    const liste = (ns) => `<ul class="np-liste">${ns.sort(trierNotes)
+      .map((n) => `<li><a href="?note=${encodeURIComponent(n.chemin)}">${n.nom}</a></li>`).join("")}</ul>`;
+    if (cles.length === 1 && cles[0] === racineDossier) return liste(sous[racineDossier]);
+    return cles.map((d) => {
+      const titre = d === racineDossier ? "" : `<h3>${d.split("/").slice(1).join(" › ")}</h3>`;
+      return `<div class="np-livre">${titre}${liste(sous[d])}</div>`;
+    }).join("");
+  }
 
   async function afficherIndex(filtreDossier) {
     const cible = document.getElementById("np-contenu");
@@ -380,15 +552,14 @@
       if (n.chemin.endsWith(".excalidraw.md")) continue;
       if (HORS_COFFRE.test(n.nom)) continue;
       const racine = n.dossier.split("/")[0] || "(racine)";
-      if (filtreDossier && racine !== filtreDossier) continue;
+      // le filtre accepte une rubrique ou un sous-dossier (un livre)
+      if (filtreDossier && n.dossier !== filtreDossier && !n.dossier.startsWith(filtreDossier + "/")
+          && racine !== filtreDossier) continue;
       (parDossier[racine] = parDossier[racine] || []).push(n);
     }
 
     const blocs = Object.keys(parDossier).sort().map((d) => {
-      const notes = parDossier[d]
-        .sort((a, b) => a.nom.localeCompare(b.nom, "fr"))
-        .map((n) => `<li><a href="?note=${encodeURIComponent(n.chemin)}">${n.nom}</a></li>`)
-        .join("");
+      const notes = listerRubrique(d, parDossier[d]);
       const carte = INDEX.find((n) => n.dossier === d && /^_INDEX/i.test(n.nom));
       const vueGraphe = INDEX.find((n) => n.chemin === `${d}/_INDEX_${d}.excalidraw.md`);
       const liens = [
@@ -398,7 +569,7 @@
       return `<section class="np-rubrique"><h2>${RUBRIQUES[d] || d}
         <span class="np-compte">${parDossier[d].length}</span></h2>
         ${liens ? `<p class="np-liens-index">${liens}</p>` : ""}
-        <ul class="np-liste">${notes}</ul></section>`;
+        ${notes}</section>`;
     });
 
     const compte = Object.values(parDossier).reduce((s, v) => s + v.length, 0);

@@ -120,6 +120,29 @@
     }
     .np-lien-mort { color: inherit; opacity: .55; border-bottom: 1px dotted currentColor; cursor: help; }
 
+    /* callouts Obsidian */
+    .np-callout {
+      margin: 1rem 0; padding: .6rem 1rem .5rem; border-left: 4px solid var(--accent);
+      border-radius: 8px; background: var(--paper-2);
+    }
+    .np-callout-titre { margin: 0 0 .3rem; font-weight: 600; }
+    .np-callout > p:last-child { margin-bottom: .25rem; }
+    .np-callout-info { border-color: #2f6fb5; }
+    .np-callout-tip, .np-callout-success { border-color: #2e8b57; }
+    .np-callout-note, .np-callout-quote { border-color: #6c757d; }
+    .np-callout-abstract, .np-callout-summary, .np-callout-example { border-color: #6b5bb5; }
+    .np-callout-warning, .np-callout-question, .np-callout-todo { border-color: #d98a1a; }
+    .np-callout-danger, .np-callout-error, .np-callout-failure, .np-callout-bug { border-color: #b8472d; }
+
+    /* transclusions : une note ou une section affichée dans une autre */
+    .np-transclusion { margin: 1.25rem 0; padding-left: 1rem; border-left: 3px double var(--rule); }
+    .np-transclusion-source { margin: 0 0 .5rem; font-size: .85rem; opacity: .7; }
+    .np-transclusion-corps > h1:first-child, .np-transclusion-corps > h2:first-child { margin-top: .25rem; }
+
+    /* livres : un groupe par sous-dossier dans l'index */
+    .np-livre { margin: .5rem 0 1.5rem; }
+    .np-livre h3 { margin: .25rem 0 .35rem; font-size: 1.15rem; }
+
     /* dessins */
     .np-excalidraw { margin: 1.5rem 0; }
     .np-svg {
