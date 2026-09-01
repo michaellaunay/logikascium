@@ -28,8 +28,20 @@
     nom: "NotesPubliques",
     branche: "master",
   };
-  const BRUT = `https://raw.githubusercontent.com/${DEPOT.proprietaire}/${DEPOT.nom}/${DEPOT.branche}/`;
-  const API = `https://api.github.com/repos/${DEPOT.proprietaire}/${DEPOT.nom}/git/trees/${DEPOT.branche}?recursive=1`;
+  const RACINE_API = `https://api.github.com/repos/${DEPOT.proprietaire}/${DEPOT.nom}`;
+  // Sentinelle de fraîcheur : le type de média « sha » fait renvoyer le seul SHA
+  // du dernier commit, en texte brut — une quarantaine d'octets, contre plusieurs
+  // centaines de kilo-octets pour l'arbre complet.
+  const API_SHA = `${RACINE_API}/commits/${DEPOT.branche}`;
+  const arbreDe = (ref) => `${RACINE_API}/git/trees/${ref}?recursive=1`;
+  const brutDe = (ref) =>
+    `https://raw.githubusercontent.com/${DEPOT.proprietaire}/${DEPOT.nom}/${ref}/`;
+
+  // Repointé sur le SHA du commit dès que celui-ci est connu. Une URL portant un
+  // SHA désigne un contenu immuable : le « cache-control: max-age=300 » de
+  // raw.githubusercontent.com ne peut alors plus servir une version périmée,
+  // puisque c'est l'URL elle-même qui change quand le dépôt change.
+  let BRUT = brutDe(DEPOT.branche);
   const ACCUEIL = "_INDEX PRINCIPAL.md";
   // Fichiers présents dans le dépôt mais qui ne sont pas des notes du coffre.
   const HORS_COFFRE = /^(README|LICENSE|CNAME|Versions)$/i;
@@ -39,34 +51,119 @@
   let FICHIERS = null; // {nomDeFichier: [chemins]}
 
   // La clé porte un numéro de version. Sans lui, un cache écrit par une version
-  // antérieure — un simple tableau, là où l'on attend maintenant {index, fichiers}
-  // — laisse INDEX à undefined, et la première boucle lève une TypeError qui fige
-  // la page sur « Chargement… ». Changer la forme d'un cache impose de changer sa clé.
-  const CLE_CACHE = "np-index-v2";
+  // antérieure — un simple tableau, là où l'on attend maintenant
+  // {sha, index, fichiers} — laisse INDEX à undefined, et la première boucle lève
+  // une TypeError qui fige la page sur « Chargement… ». Changer la forme d'un
+  // cache impose de changer sa clé.
+  //
+  // v3 : le cache est désormais estampillé par le SHA du commit qui l'a produit,
+  // et conservé dans localStorage. Les versions précédentes cachaient l'index
+  // dans sessionStorage sans aucune marque de fraîcheur : tant que l'onglet
+  // restait ouvert, l'index survivait à un Ctrl+Maj+R (le rechargement forcé vide
+  // le cache HTTP, jamais le sessionStorage) et le dépôt pouvait changer sans que
+  // la page s'en aperçoive jamais. Seule une fenêtre privée, dont le stockage est
+  // vierge, montrait le dépôt à jour — c'était exactement le symptôme observé.
+  const CLE_CACHE = "np-index-v3";
+  const CLES_OBSOLETES = ["np-index", "np-index-v2"];
 
   function cacheValide(c) {
-    return c && Array.isArray(c.index) && c.fichiers && typeof c.fichiers === "object";
+    return c && typeof c.sha === "string" && c.sha
+      && Array.isArray(c.index) && c.fichiers && typeof c.fichiers === "object";
+  }
+
+  function purgerAnciensCaches() {
+    for (const cle of CLES_OBSOLETES) {
+      try { localStorage.removeItem(cle); } catch (e) { /* indisponible */ }
+      try { sessionStorage.removeItem(cle); } catch (e) { /* indisponible */ }
+    }
+  }
+
+  function lireCache() {
+    try {
+      const brut = localStorage.getItem(CLE_CACHE);
+      if (!brut) return null;
+      const c = JSON.parse(brut);
+      if (cacheValide(c)) return c;
+      localStorage.removeItem(CLE_CACHE); // forme inattendue : on repart de zéro
+    } catch (e) {
+      /* stockage indisponible ou JSON corrompu : on rechargera depuis le réseau */
+    }
+    return null;
+  }
+
+  function ecrireCache(sha, index, fichiers) {
+    try {
+      localStorage.setItem(CLE_CACHE, JSON.stringify({ sha, index, fichiers }));
+    } catch (e) {
+      /* quota dépassé : on se passe du cache */
+    }
+  }
+
+  /** SHA du dernier commit de la branche suivie.
+   *
+   *  `cache: "no-store"` n'est pas décoratif : sans lui, le cache HTTP du
+   *  navigateur peut resservir un ancien SHA, et la sentinelle validerait alors
+   *  un index tout aussi périmé — on aurait déplacé le bogue, pas corrigé. */
+  async function shaDistant() {
+    const rep = await fetch(API_SHA, {
+      cache: "no-store",
+      headers: { Accept: "application/vnd.github.sha" },
+    });
+    if (!rep.ok) throw new Error(`HTTP ${rep.status}`);
+    const sha = (await rep.text()).trim();
+    if (!/^[0-9a-f]{40}$/i.test(sha)) throw new Error("réponse inattendue");
+    return sha;
+  }
+
+  /** Bandeau discret signalant que l'on affiche un index dont on n'a pas pu
+   *  vérifier la fraîcheur (quota API atteint, réseau coupé). */
+  function signalerIndexNonVerifie() {
+    if (document.getElementById("np-avis-cache")) return;
+    const avis = document.createElement("p");
+    avis.id = "np-avis-cache";
+    avis.className = "np-erreur";
+    avis.textContent = "Index affiché depuis le cache local : sa fraîcheur n'a pas "
+      + "pu être vérifiée auprès de GitHub (quota horaire ou réseau).";
+    const cible = document.querySelector("main");
+    if (cible) cible.insertBefore(avis, cible.firstChild);
+  }
+
+  function adopter(sha, index, fichiers) {
+    BRUT = brutDe(sha);
+    INDEX = index;
+    FICHIERS = fichiers;
+    return INDEX;
   }
 
   async function chargerIndex() {
     if (INDEX) return INDEX;
+    purgerAnciensCaches();
+    const cache = lireCache();
+
+    // 1. Sentinelle : une requête minuscule qui dit si le dépôt a bougé.
+    let sha = null;
     try {
-      const brut = sessionStorage.getItem(CLE_CACHE);
-      if (brut) {
-        const c = JSON.parse(brut);
-        if (cacheValide(c)) {
-          INDEX = c.index;
-          FICHIERS = c.fichiers;
-          return INDEX;
-        }
-        sessionStorage.removeItem(CLE_CACHE);
-      }
-      sessionStorage.removeItem("np-index"); // purge de l'ancienne clé
+      sha = await shaDistant();
     } catch (e) {
-      /* sessionStorage indisponible : on recharge depuis le réseau */
+      // Sentinelle injoignable. Un index un peu vieux vaut mieux qu'une page
+      // vide : on repart du cache s'il en existe un, en le disant.
+      if (cache) {
+        signalerIndexNonVerifie();
+        return adopter(cache.sha, cache.index, cache.fichiers);
+      }
     }
-    const rep = await fetch(API);
+
+    // 2. Dépôt inchangé depuis le calcul du cache : rien à retélécharger.
+    if (sha && cache && cache.sha === sha) return adopter(sha, cache.index, cache.fichiers);
+
+    // 3. Dépôt modifié (ou premier chargement) : on reconstruit l'index.
+    const ref = sha || DEPOT.branche;
+    const rep = await fetch(arbreDe(ref), { cache: "no-store" });
     if (!rep.ok) {
+      if (cache) {
+        signalerIndexNonVerifie();
+        return adopter(cache.sha, cache.index, cache.fichiers);
+      }
       throw new Error(rep.status === 403 || rep.status === 429
         ? "l'API GitHub a temporairement limité les requêtes depuis cette adresse "
           + "(quota horaire). Réessayez dans quelques minutes."
@@ -74,7 +171,7 @@
     }
     const arbre = await rep.json();
     const blobs = (arbre.tree || []).filter((n) => n.type === "blob");
-    INDEX = blobs
+    const index = blobs
       .filter((n) => n.path.endsWith(".md"))
       .map((n) => ({
         chemin: n.path,
@@ -83,21 +180,25 @@
       }));
     // Les pièces jointes doivent être indexées elles aussi : les dessins
     // Excalidraw référencent leurs images par nom de fichier, pas par chemin.
-    FICHIERS = {};
+    const fichiers = {};
     for (const n of blobs) {
       if (n.path.endsWith(".md")) continue;
       const nom = n.path.split("/").pop();
-      if (!(nom in FICHIERS)) FICHIERS[nom] = [];
-      FICHIERS[nom].push(n.path);
+      if (!(nom in fichiers)) fichiers[nom] = [];
+      fichiers[nom].push(n.path);
     }
-    try {
-      sessionStorage.setItem(CLE_CACHE,
-        JSON.stringify({ index: INDEX, fichiers: FICHIERS }));
-    } catch (e) {
-      /* quota dépassé : on se passe du cache */
-    }
-    return INDEX;
+    // Sans SHA on ne sait pas estampiller le cache : mieux vaut ne rien écrire
+    // que d'écrire un index qu'on ne saura jamais invalider.
+    if (sha) ecrireCache(sha, index, fichiers);
+    return adopter(ref, index, fichiers);
   }
+
+  // Trappe de secours, utile depuis la console en cas de doute.
+  window.npViderCache = function () {
+    try { localStorage.removeItem(CLE_CACHE); } catch (e) { /* indisponible */ }
+    purgerAnciensCaches();
+    location.reload();
+  };
 
   /** Résout un lien [[Nom]] ou [[dossier/Nom]] vers un chemin réel.
    *  En cas d'homonymie, la note du même dossier que la note courante gagne :
