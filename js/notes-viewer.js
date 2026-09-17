@@ -709,8 +709,14 @@
     const sous = {};
     for (const n of notes) (sous[n.dossier] = sous[n.dossier] || []).push(n);
     const cles = Object.keys(sous).sort((a, b) => a.localeCompare(b, "fr"));
-    const liste = (ns) => `<ul class="np-liste">${ns.sort(trierNotes)
-      .map((n) => `<li><a href="?note=${encodeURIComponent(n.chemin)}">${n.nom}</a></li>`).join("")}</ul>`;
+    // Un dessin s'affiche sans son extension, avec une étiquette : c'est un
+    // support de cours au même titre qu'une note, mais on doit savoir avant de
+    // cliquer qu'on ouvre un schéma et non un texte.
+    const entree = (n) => estDessin(n.chemin)
+      ? `<li class="np-dessin-item"><a href="?note=${encodeURIComponent(n.chemin)}">${n.nom.replace(/\.excalidraw$/i, "")}</a>`
+        + ` <span class="np-etiquette">dessin</span></li>`
+      : `<li><a href="?note=${encodeURIComponent(n.chemin)}">${n.nom}</a></li>`;
+    const liste = (ns) => `<ul class="np-liste">${ns.sort(trierNotes).map(entree).join("")}</ul>`;
     if (cles.length === 1 && cles[0] === racineDossier) return liste(sous[racineDossier]);
     return cles.map((d) => {
       const titre = d === racineDossier ? "" : `<h3>${d.split("/").slice(1).join(" › ")}</h3>`;
@@ -726,10 +732,10 @@
 
     const parDossier = {};
     for (const n of INDEX) {
-      // les index et les dessins ne sont pas des notes : ils sont proposés
-      // séparément, en tête de rubrique
+      // les index — cartes graphiques comprises — ne sont pas des notes : ils
+      // sont proposés séparément, en tête de rubrique. Les autres dessins sont
+      // listés avec les notes : un plan de cours en est le support.
       if (n.nom.startsWith("_")) continue;
-      if (estDessin(n.chemin)) continue;
       if (HORS_COFFRE.test(n.nom)) continue;
       const racine = n.dossier.split("/")[0] || "(racine)";
       // le filtre accepte une rubrique ou un sous-dossier (un livre)
