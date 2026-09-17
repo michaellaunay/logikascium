@@ -208,13 +208,19 @@
     }
   }
 
-  /** Convertit le contenu d'un `.excalidraw.md` en SVG.
+  /** Convertit le contenu d'un `.excalidraw.md` (ou d'un `.excalidraw` brut) en SVG.
    *  @param {string} brut  contenu du fichier
-   *  @param {{lien?: (chemin:string)=>string}} options
+   *  @param {{lien?: (cible:string, ancre:string)=>(string|null),
+   *           fichier?: (nom:string)=>(string|null)}} options
+   *    `lien` reçoit la cible d'un [[lien]] et son ancre (« Section » ou « ^bloc »,
+   *    chaîne vide sinon) et rend l'URL à ouvrir — ou null pour ne pas poser de
+   *    lien du tout, ce qui est la bonne réponse quand la cible n'existe pas
+   *    côté public : un lien mort divulguerait le titre d'une note privée.
    *  @returns {string} SVG prêt à insérer */
   function excalidrawVersSVG(brut, options) {
     options = options || {};
-    const versLien = options.lien || ((c) => "?note=" + encodeURIComponent(c));
+    const versLien = options.lien || ((c, a) =>
+      "?note=" + encodeURIComponent(c.endsWith(".md") ? c : c + ".md") + (a ? "#" + encodeURIComponent(a) : ""));
     const versFichier = options.fichier || (() => null);
     const doc = extraireJSON(brut);
     const elements = (doc.elements || []).filter((e) => !e.isDeleted);
@@ -236,9 +242,15 @@
       const brutLien = e.link || "";
       const m = brutLien.match(/^\[\[(.+?)(?:\|.*)?\]\]$/);
       if (m) {
-        const cible = m[1].trim();
-        const url = versLien(cible.endsWith(".md") ? cible : cible + ".md");
-        return `<a href="${ech(url)}" class="np-noeud">${svg}</a>`;
+        // « Note#Section » : l'ancre est séparée AVANT toute résolution. La
+        // coller à la cible produisait « Note#Section.md », que rien ne trouve.
+        const diese = m[1].indexOf("#");
+        const cible = (diese === -1 ? m[1] : m[1].slice(0, diese)).trim();
+        const ancre = diese === -1 ? "" : m[1].slice(diese + 1).trim();
+        const url = versLien(cible, ancre);
+        if (!url) return svg;
+        const externe = /^https?:/i.test(url) ? ' target="_blank" rel="noopener"' : "";
+        return `<a href="${ech(url)}" class="np-noeud"${externe}>${svg}</a>`;
       }
       if (/^https?:/.test(brutLien)) {
         return `<a href="${ech(brutLien)}" target="_blank" rel="noopener" class="np-noeud">${svg}</a>`;

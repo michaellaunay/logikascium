@@ -615,7 +615,21 @@
       try {
         const brut = await lire(src);
         noeud.innerHTML = window.excalidrawVersSVG(brut, {
-          lien: (c) => "?note=" + encodeURIComponent(resoudre(c, dossier) || c),
+          // Un nœud du dessin peut viser une note (avec ou sans section), une
+          // pièce jointe, ou une note restée privée. Dans ce dernier cas on ne
+          // pose pas de lien : un « ?note=… » mort afficherait une page
+          // d'erreur et publierait le titre de la note dans le HTML.
+          lien: (cible, ancre) => {
+            const chemin = resoudre(cible, dossier);
+            if (chemin) {
+              // Une référence de bloc « ^id » n'a pas d'équivalent dans le
+              // rendu ; on ouvre la note en tête. Une section, elle, se
+              // retrouve : les titres portent le même slug que les liens.
+              const frag = ancre && !ancre.startsWith("^") ? "#" + encodeURIComponent(slug(ancre)) : "";
+              return "?note=" + encodeURIComponent(chemin) + frag;
+            }
+            return resoudreFichier(cible, dossier);
+          },
           fichier: (nom) => resoudreFichier(nom, dossier),
         });
       } catch (e) {
