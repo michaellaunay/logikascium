@@ -632,10 +632,61 @@
           },
           fichier: (nom) => resoudreFichier(nom, dossier),
         });
+        adapterGrandDessin(noeud);
       } catch (e) {
         noeud.innerHTML = `<p class="np-erreur">Dessin illisible : ${e.message}</p>`;
       }
     }
+  }
+
+  /** Un dessin trop grand pour la page est illisible une fois réduit : le plan
+   *  de cours fait 4 700 × 80 000 px, et ajusté à la largeur ses textes de
+   *  16 px passent sous 4 px. Quand l'ajustement tomberait sous 55 % de la
+   *  taille réelle, on renonce à l'image d'un bloc : le dessin est posé dans un
+   *  panneau qui défile, avec un réglage de zoom, comme on le parcourt dans
+   *  Obsidian. Départ à la largeur de la page si cela reste lisible, à la
+   *  taille réelle sinon. Les petits dessins ne sont pas touchés. */
+  function adapterGrandDessin(noeud) {
+    const svg = noeud.querySelector("svg.np-svg");
+    if (!svg) return;
+    const vb = (svg.getAttribute("viewBox") || "").split(/\s+/).map(Number);
+    if (vb.length !== 4 || !(vb[2] > 0) || !(vb[3] > 0)) return;
+    const w = vb[2], h = vb[3];
+    const largeur = noeud.clientWidth || 1000;
+    const ajuste = Math.min(largeur / w, (0.78 * window.innerHeight) / h);
+    if (ajuste >= 0.55) return;
+
+    let z = largeur / w >= 0.3 ? largeur / w : 1;
+    const panneau = document.createElement("div");
+    panneau.className = "np-dessin-defilant";
+    const barre = document.createElement("div");
+    barre.className = "np-zoom";
+    barre.innerHTML =
+      '<button type="button" data-zoom="-" title="Réduire">−</button>' +
+      '<span class="np-zoom-valeur"></span>' +
+      '<button type="button" data-zoom="+" title="Agrandir">+</button>' +
+      '<button type="button" data-zoom="largeur" title="Ajuster à la largeur de la page">Largeur</button>' +
+      '<button type="button" data-zoom="1" title="Taille réelle">100 %</button>';
+    const valeur = barre.querySelector(".np-zoom-valeur");
+    const appliquer = () => {
+      svg.style.width = Math.round(w * z) + "px";
+      svg.style.height = Math.round(h * z) + "px";
+      valeur.textContent = Math.round(z * 100) + " %";
+    };
+    barre.addEventListener("click", (ev) => {
+      const b = ev.target.closest("button[data-zoom]");
+      if (!b) return;
+      const a = b.dataset.zoom;
+      z = a === "+" ? Math.min(z * 1.25, 4)
+        : a === "-" ? Math.max(z / 1.25, 0.05)
+        : a === "largeur" ? largeur / w : 1;
+      appliquer();
+    });
+    svg.classList.add("np-svg-grand");
+    panneau.appendChild(svg);
+    noeud.appendChild(barre);
+    noeud.appendChild(panneau);
+    appliquer();
   }
 
   /* ------------------------------------------------- index et recherche -- */

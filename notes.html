@@ -152,6 +152,27 @@
     .np-svg .np-noeud { cursor: pointer; }
     .np-svg .np-noeud:hover { filter: drop-shadow(0 0 6px rgba(184, 71, 45, .55)); }
 
+    /* grands dessins : panneau défilant et zoom (voir adapterGrandDessin) */
+    .np-dessin-defilant {
+      overflow: auto; max-height: 82vh;
+      border: 1px solid var(--rule); border-radius: 12px; background: #fff;
+    }
+    .np-svg-grand {
+      display: block; max-height: none; max-width: none;
+      border: 0; border-radius: 0;
+    }
+    .np-zoom {
+      display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+      margin-bottom: .5rem; font-size: .85rem;
+    }
+    .np-zoom-valeur { min-width: 3.2em; text-align: center; opacity: .7; }
+    .np-zoom button {
+      font: inherit; cursor: pointer; padding: .2rem .65rem;
+      border: 1px solid var(--rule); border-radius: 8px;
+      background: var(--paper-2); color: inherit;
+    }
+    .np-zoom button:hover { border-color: var(--accent); color: var(--accent); }
+
     /* index */
     .np-recherche {
       width: 100%; padding: .7rem 1rem; margin-bottom: 2rem; font: inherit;
