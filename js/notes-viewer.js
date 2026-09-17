@@ -9,7 +9,8 @@
  *     donc de données ;
  *   - coloration syntaxique, Mermaid, tables ;
  *   - rendu des dessins Excalidraw d'Obsidian, en note entière comme en
- *     transclusion ![[schema.excalidraw]] ;
+ *     transclusion ![[schema.excalidraw]], qu'ils soient enregistrés en
+ *     « .excalidraw.md » ou en JSON brut « .excalidraw » ;
  *   - transclusion de notes et de sections, ![[Note]] et ![[Note#Section]],
  *     telle qu'Obsidian l'affiche — c'est ainsi que sont composés les
  *     « Livres de cours » ;
@@ -45,6 +46,14 @@
   const ACCUEIL = "_INDEX PRINCIPAL.md";
   // Fichiers présents dans le dépôt mais qui ne sont pas des notes du coffre.
   const HORS_COFFRE = /^(README|LICENSE|CNAME|Versions)$/i;
+
+  // Le greffon Excalidraw d'Obsidian enregistre ses dessins en « .excalidraw.md »,
+  // mais il sait aussi conserver le fichier JSON brut « .excalidraw » — et
+  // excalidraw-svg.js lit les deux. Un dessin brut doit donc être indexé comme
+  // une note : c'est la seule façon pour qu'un lien [[Schéma.excalidraw]] se
+  // résolve, au lieu d'être rendu grisé comme « note non publiée ».
+  const estNote = (chemin) => /\.(md|excalidraw)$/i.test(chemin);
+  const estDessin = (chemin) => /\.excalidraw(\.md)?$/i.test(chemin);
 
   /* ------------------------------------------------------------ index ---- */
   let INDEX = null;    // [{chemin, nom, dossier}]
@@ -172,7 +181,7 @@
     const arbre = await rep.json();
     const blobs = (arbre.tree || []).filter((n) => n.type === "blob");
     const index = blobs
-      .filter((n) => n.path.endsWith(".md"))
+      .filter((n) => estNote(n.path))
       .map((n) => ({
         chemin: n.path,
         nom: n.path.replace(/\.md$/, "").split("/").pop(),
@@ -182,7 +191,7 @@
     // Excalidraw référencent leurs images par nom de fichier, pas par chemin.
     const fichiers = {};
     for (const n of blobs) {
-      if (n.path.endsWith(".md")) continue;
+      if (estNote(n.path)) continue;
       const nom = n.path.split("/").pop();
       if (!(nom in fichiers)) fichiers[nom] = [];
       fichiers[nom].push(n.path);
@@ -372,7 +381,7 @@
   }
 
   function fildAriane(chemin) {
-    const morceaux = chemin.replace(/\.md$/, "").split("/");
+    const morceaux = chemin.replace(/\.excalidraw(\.md)?$|\.md$/i, "").split("/");
     const nom = morceaux.pop();
     const dossiers = morceaux.map((d, i) =>
       `<a href="?dossier=${encodeURIComponent(morceaux.slice(0, i + 1).join("/"))}">${d}</a>`).join(" › ");
@@ -383,6 +392,17 @@
     const cible = document.getElementById("np-contenu");
     cible.innerHTML = '<p class="np-attente">Chargement…</p>';
     const dossier = chemin.includes("/") ? chemin.split("/").slice(0, -1).join("/") : "";
+
+    // Un dessin se rend directement : rendreExcalidraw lit le fichier lui-même,
+    // et le lire une première fois ici doublerait le téléchargement — un plan de
+    // cours avec ses images pèse plusieurs mégaoctets.
+    if (estDessin(chemin)) {
+      document.title = `${chemin.replace(/\.excalidraw(\.md)?$/i, "").split("/").pop()} — Notes | Logikascium`;
+      cible.innerHTML = fildAriane(chemin) + '<div class="np-excalidraw" data-src="' + attr(chemin) + '"></div>';
+      await rendreExcalidraw(cible);
+      return;
+    }
+
     let texte;
     try {
       texte = await lire(chemin);
@@ -390,12 +410,6 @@
       cible.innerHTML = `<div class="np-erreur"><h2>Note indisponible</h2><p>${e.message}</p>
         <p>Cette note n'est peut-être pas publiée : <code>NotesPubliques</code> est un
         sous-ensemble filtré des notes privées.</p><p><a href="?">Revenir à l'index</a></p></div>`;
-      return;
-    }
-
-    if (/\.excalidraw\.md$/i.test(chemin)) {
-      cible.innerHTML = fildAriane(chemin) + '<div class="np-excalidraw" data-src="' + chemin + '"></div>';
-      await rendreExcalidraw(cible);
       return;
     }
 
@@ -650,7 +664,7 @@
       // les index et les dessins ne sont pas des notes : ils sont proposés
       // séparément, en tête de rubrique
       if (n.nom.startsWith("_")) continue;
-      if (n.chemin.endsWith(".excalidraw.md")) continue;
+      if (estDessin(n.chemin)) continue;
       if (HORS_COFFRE.test(n.nom)) continue;
       const racine = n.dossier.split("/")[0] || "(racine)";
       // le filtre accepte une rubrique ou un sous-dossier (un livre)
@@ -725,7 +739,7 @@
       return;
     }
     if (note) {
-      const chemin = note.endsWith(".md") ? note : note + ".md";
+      const chemin = estNote(note) ? note : note + ".md";
       await afficherNote(resoudre(chemin, "") || chemin);
     } else if (p.get("dossier")) {
       await afficherIndex(p.get("dossier"));
