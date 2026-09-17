@@ -6,7 +6,7 @@
  *
  * Il ne réimplémente pas Excalidraw : il couvre les types réellement employés
  * dans des schémas de notes — rectangle, ellipse, losange, flèche, ligne, texte,
- * trait libre, image — et ignore proprement le reste. C'est suffisant pour rendre
+ * trait libre, image, cadre — et ignore proprement le reste. C'est suffisant pour rendre
  * un schéma consultable et cliquable dans un navigateur, ce qui est le but.
  *
  * Élément lié : un élément dont `link` vaut `[[Note]]` devient un lien cliquable,
@@ -145,6 +145,22 @@
       `${ech(etiquette)}</text></g>`;
   }
 
+  /** Un cadre (frame) : Excalidraw le trace en fin rectangle et inscrit son
+   *  nom juste au-dessus, à gauche. Dans un plan de cours, les cadres sont les
+   *  chapitres — « 03 La machine de Blaise Pascal » — et sans eux le lecteur
+   *  perd la structure du dessin. Le fond est forcé à « none » : un cadre est
+   *  toujours derrière son contenu, et le peindre le masquerait. */
+  function cadre(e) {
+    const op = e.opacity == null ? 100 : e.opacity;
+    const etiquette = e.name
+      ? `<text x="${e.x}" y="${e.y - 8}" font-size="14" ` +
+        `font-family="Helvetica, Arial, sans-serif" fill="#868e96">${ech(e.name)}</text>`
+      : "";
+    return `<g opacity="${op / 100}"><rect x="${e.x}" y="${e.y}" width="${e.width}" ` +
+      `height="${e.height}" rx="8" fill="none" stroke="${e.strokeColor || "#bbb"}" ` +
+      `stroke-width="${e.strokeWidth || 1}"/>${etiquette}</g>`;
+  }
+
   /** Les éléments « embeddable » sont des pages web incrustées. On ne peut pas
    *  les charger ici — la plupart des sites refusent d'être placés en cadre — et
    *  on ne veut pas exécuter du tiers dans la page. On rend donc une vignette
@@ -201,6 +217,8 @@
           `preserveAspectRatio="xMidYMid slice" clip-path="url(#${clip})" ` +
           `href="${ech(url)}"${rotation(e)}/>`;
       }
+      case "frame":
+        return cadre(e);
       case "embeddable":
         return cadreEmbarque(e);
       default:
