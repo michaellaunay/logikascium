@@ -66,6 +66,23 @@
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+  /** Le point d'entrée d'un grand dessin : la zone à montrer en premier.
+   *
+   *  Le viewBox part du coin haut-gauche de la boîte englobante, et ce coin
+   *  est souvent vide — dans un plan de cours, le titre et le premier chapitre
+   *  sont décalés vers la droite. Un lecteur qui ouvre le dessin à ce coin ne
+   *  voit que du blanc. Quand le dessin a des cadres, le plus haut d'entre eux
+   *  (puis le plus à gauche) est un point d'entrée naturel : c'est le premier
+   *  chapitre, avec son titre. La zone rendue inclut l'étiquette du cadre.
+   *  Sans cadre, null : le lecteur se rabat sur la boîte englobante. */
+  function pointDEntree(elements) {
+    const cadres = elements.filter((e) => e.type === "frame" && e.width > 0 && e.height > 0);
+    if (!cadres.length) return null;
+    cadres.sort((a, b) => (a.y - b.y) || (a.x - b.x));
+    const c = cadres[0];
+    return { x: c.x, y: c.y - 24, w: c.width, h: c.height + 24 };
+  }
+
   function boite(elements) {
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const e of elements) {
@@ -252,6 +269,7 @@
       fichiers[id] = Object.assign({ nom: nom }, fichiers[id] || {}, url ? { url: url } : {});
     }
     const b = boite(elements);
+    const entree = pointDEntree(elements);
     const fond = (doc.appState && doc.appState.viewBackgroundColor) || "#ffffff";
 
     const corps = elements.map((e) => {
@@ -284,6 +302,8 @@
 
     return `<svg class="np-svg" xmlns="http://www.w3.org/2000/svg" role="img" ` +
       `viewBox="${b.x.toFixed(1)} ${b.y.toFixed(1)} ${b.w.toFixed(1)} ${b.h.toFixed(1)}" ` +
+      (entree ? `data-entree="${entree.x.toFixed(1)} ${entree.y.toFixed(1)} ` +
+        `${entree.w.toFixed(1)} ${entree.h.toFixed(1)}" ` : "") +
       `style="background:${fond}">` +
       `<defs>${fleche("np-fleche", false)}${fleche("np-fleche-debut", true)}</defs>` +
       corps + `</svg>`;

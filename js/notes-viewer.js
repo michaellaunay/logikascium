@@ -644,19 +644,33 @@
    *  16 px passent sous 4 px. Quand l'ajustement tomberait sous 55 % de la
    *  taille réelle, on renonce à l'image d'un bloc : le dessin est posé dans un
    *  panneau qui défile, avec un réglage de zoom, comme on le parcourt dans
-   *  Obsidian. Départ à la largeur de la page si cela reste lisible, à la
-   *  taille réelle sinon. Les petits dessins ne sont pas touchés. */
+   *  Obsidian. Les petits dessins ne sont pas touchés.
+   *
+   *  Le panneau s'ouvre sur le point d'entrée que le rendu désigne
+   *  (data-entree : le premier cadre, un chapitre) — à défaut sur la boîte
+   *  englobante — au zoom qui fait tenir cette zone dans la largeur du
+   *  panneau, et les ascenseurs sont placés dessus. Le visiteur voit ainsi du
+   *  contenu lisible d'emblée, et sait qu'il peut zoomer ou se déplacer. Un
+   *  changement de zoom conserve ensuite le centre de la vue. */
   function adapterGrandDessin(noeud) {
     const svg = noeud.querySelector("svg.np-svg");
     if (!svg) return;
-    const vb = (svg.getAttribute("viewBox") || "").split(/\s+/).map(Number);
+    const nombres = (s) => (s || "").split(/\s+/).map(Number);
+    const vb = nombres(svg.getAttribute("viewBox"));
     if (vb.length !== 4 || !(vb[2] > 0) || !(vb[3] > 0)) return;
     const w = vb[2], h = vb[3];
     const largeur = noeud.clientWidth || 1000;
     const ajuste = Math.min(largeur / w, (0.78 * window.innerHeight) / h);
     if (ajuste >= 0.55) return;
 
-    let z = largeur / w >= 0.3 ? largeur / w : 1;
+    const MARGE = 24;
+    const e = nombres(svg.dataset.entree);
+    const entree = e.length === 4 && e[2] > 0
+      ? { x: e[0], y: e[1], w: e[2], h: e[3] }
+      : { x: vb[0], y: vb[1], w: w, h: h };
+    const borner = (v) => Math.min(4, Math.max(0.05, v));
+    let z = borner(Math.min(1, largeur / (entree.w + 2 * MARGE)));
+
     const panneau = document.createElement("div");
     panneau.className = "np-dessin-defilant";
     const barre = document.createElement("div");
@@ -665,7 +679,7 @@
       '<button type="button" data-zoom="-" title="Réduire">−</button>' +
       '<span class="np-zoom-valeur"></span>' +
       '<button type="button" data-zoom="+" title="Agrandir">+</button>' +
-      '<button type="button" data-zoom="largeur" title="Ajuster à la largeur de la page">Largeur</button>' +
+      '<button type="button" data-zoom="largeur" title="Tout le dessin dans la largeur de la page">Largeur</button>' +
       '<button type="button" data-zoom="1" title="Taille réelle">100 %</button>';
     const valeur = barre.querySelector(".np-zoom-valeur");
     const appliquer = () => {
@@ -673,20 +687,34 @@
       svg.style.height = Math.round(h * z) + "px";
       valeur.textContent = Math.round(z * 100) + " %";
     };
+    // Défilement en coordonnées du dessin : le point (x, y) est placé au coin
+    // haut-gauche du panneau (viser) ou en son centre (centrer).
+    const viser = (x, y) => {
+      panneau.scrollLeft = Math.max(0, (x - vb[0]) * z);
+      panneau.scrollTop = Math.max(0, (y - vb[1]) * z);
+    };
+    const centreCourant = () => [
+      (panneau.scrollLeft + panneau.clientWidth / 2) / z + vb[0],
+      (panneau.scrollTop + panneau.clientHeight / 2) / z + vb[1],
+    ];
+    const centrer = (cx, cy) => viser(cx - panneau.clientWidth / 2 / z, cy - panneau.clientHeight / 2 / z);
     barre.addEventListener("click", (ev) => {
       const b = ev.target.closest("button[data-zoom]");
       if (!b) return;
       const a = b.dataset.zoom;
-      z = a === "+" ? Math.min(z * 1.25, 4)
-        : a === "-" ? Math.max(z / 1.25, 0.05)
-        : a === "largeur" ? largeur / w : 1;
+      const [cx, cy] = centreCourant();
+      z = a === "+" ? borner(z * 1.25)
+        : a === "-" ? borner(z / 1.25)
+        : a === "largeur" ? borner(largeur / w) : 1;
       appliquer();
+      centrer(cx, cy);
     });
     svg.classList.add("np-svg-grand");
     panneau.appendChild(svg);
     noeud.appendChild(barre);
     noeud.appendChild(panneau);
     appliquer();
+    viser(entree.x - MARGE, entree.y - MARGE);
   }
 
   /* ------------------------------------------------- index et recherche -- */
