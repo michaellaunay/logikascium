@@ -319,9 +319,61 @@
     });
   }
 
+  /** Met à l'abri les blocs de code clôturés et le code en ligne, et rend le
+   *  texte troué de jetons avec la fonction qui les restitue.
+   *
+   *  La réécriture des liens Obsidian se fait sur le Markdown brut, avant
+   *  `marked`, et ne distinguait pas le code du reste. Un cours sur Obsidian
+   *  cite `[[Nom de la note]]` en exemple dans un bloc ```markdown : réécrit,
+   *  l'exemple devenait un <span class="np-lien-mort"> affiché en clair dans
+   *  le code, et `![[Nom de la note]]` une mention « note non publiée ».
+   *  Obsidian, lui, ne lie jamais ce qui est dans du code.
+   *
+   *  Les règles sont celles de CommonMark : un bloc s'ouvre par trois accents
+   *  graves ou tildes au moins (l'info d'un bloc à accents graves ne peut en
+   *  contenir), et se ferme par une clôture du même caractère, au moins aussi
+   *  longue ; un code en ligne s'ouvre et se ferme par la même suite exacte
+   *  d'accents graves, et peut passer à la ligne sans traverser de ligne
+   *  vide. Les blocs indentés de quatre espaces ne sont pas couverts : dans
+   *  une liste, l'indentation n'est pas du code. */
+  function abriterLeCode(md) {
+    const abris = [];
+    const abriter = (s) => { abris.push(s); return `\uE000${abris.length - 1}\uE001`; };
+
+    const sortie = [];
+    let cloture = null;
+    let bloc = [];
+    for (const ligne of md.split("\n")) {
+      if (cloture) {
+        bloc.push(ligne);
+        const fin = ligne.match(/^ {0,3}(`{3,}|~{3,})[ \t]*$/);
+        if (fin && fin[1][0] === cloture[0] && fin[1].length >= cloture.length) {
+          sortie.push(abriter(bloc.join("\n")));
+          cloture = null;
+          bloc = [];
+        }
+        continue;
+      }
+      const debut = ligne.match(/^ {0,3}(`{3,}|~{3,})/);
+      if (debut && !(debut[1][0] === "`" && ligne.slice(debut[0].length).includes("`"))) {
+        cloture = debut[1];
+        bloc = [ligne];
+        continue;
+      }
+      sortie.push(ligne);
+    }
+    if (cloture) sortie.push(abriter(bloc.join("\n"))); // bloc jamais refermé
+
+    const texte = sortie.join("\n")
+      .replace(/(`+)(?!`)((?:(?!\n[ \t]*\n)[\s\S])*?[^`\n])\1(?!`)/g, (m) => abriter(m));
+    return { texte, restituer: (s) => s.replace(/\uE000(\d+)\uE001/g, (m, i) => abris[+i]) };
+  }
+
   /** Les liens et transclusions Obsidian sont traités AVANT Markdown,
    *  sinon `[[a|b]]` est mangé par l'analyseur de liens standard. */
   function transformerLiensObsidian(md, dossier) {
+    const abri = abriterLeCode(md);
+    md = abri.texte;
     // transclusion : ![[fichier]] pour une image ou un dessin, ![[Note]] ou
     // ![[Note#Section]] pour du contenu, rendu après coup par rendreTransclusions
     md = md.replace(/!\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/g, (m, cibleBrute, alias) => {
@@ -348,7 +400,7 @@
       const frag = ancre ? "#" + encodeURIComponent(slug(ancre)) : "";
       return `[${texte}](?note=${encodeURIComponent(chemin)}${frag})`;
     });
-    return md;
+    return abri.restituer(md);
   }
 
   function reecrireImagesRelatives(racine, dossier) {
