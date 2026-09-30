@@ -259,6 +259,15 @@
     return String(valeur).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   }
 
+  /** Échappe du texte destiné au contenu d'un élément. Tout ce qui vient d'une
+   *  note ou du dépôt et ne passe pas par DOMPurify — titres du sommaire,
+   *  frontmatter, noms de fichiers, messages — doit y passer : un titre
+   *  « 9.14 <textarea> » inséré tel quel devient une vraie balise, et le
+   *  navigateur avale tout ce qui suit. */
+  function ech(texte) {
+    return attr(texte).replace(/>/g, "&gt;");
+  }
+
   /** Donne un id à chaque titre ; un préfixe sépare les titres d'une note
    *  transcluse de ceux de la note hôte. */
   function identifierTitres(racine, prefixe) {
@@ -291,13 +300,14 @@
     if (!meta) return "";
     const puces = [];
     for (const [cle, libelle] of Object.entries(ETIQUETTES)) {
-      if (meta[cle]) puces.push(`<span class="np-tag"><b>${libelle}</b> ${meta[cle]}</span>`);
+      if (meta[cle]) puces.push(`<span class="np-tag"><b>${libelle}</b> ${ech(meta[cle])}</span>`);
     }
-    for (const t of meta.themes || []) puces.push(`<span class="np-theme">${t}</span>`);
-    const resume = meta.resume ? `<p class="np-resume">${meta.resume}</p>` : "";
+    for (const t of meta.themes || []) puces.push(`<span class="np-theme">${ech(t)}</span>`);
+    const resume = meta.resume ? `<p class="np-resume">${ech(meta.resume)}</p>` : "";
     const auteurs = (meta.source_auteurs || []).join(", ");
-    const src = meta.source_url && meta.source_url.length
-      ? `<p class="np-source">Source : <a href="${meta.source_url[0]}" rel="noopener">${meta.source_titre || meta.source_url[0]}</a>${auteurs ? ` — ${auteurs}` : ""}</p>`
+    const url = meta.source_url && meta.source_url.length ? String(meta.source_url[0]) : "";
+    const src = /^https?:\/\//i.test(url)
+      ? `<p class="np-source">Source : <a href="${attr(url)}" rel="noopener">${ech(meta.source_titre || url)}</a>${auteurs ? ` — ${ech(auteurs)}` : ""}</p>`
       : "";
     return `<aside class="np-meta">${resume}<div class="np-tags">${puces.join("")}</div>${src}</aside>`;
   }
@@ -396,7 +406,7 @@
     md = md.replace(/\[\[([^\]|#]+?)(?:#([^\]|]+))?(?:\|([^\]]*))?\]\]/g, (m, cible, ancre, alias) => {
       const chemin = resoudre(cible.trim(), dossier);
       const texte = alias || cible.trim();
-      if (!chemin) return `<span class="np-lien-mort" title="note non publiée">${texte}</span>`;
+      if (!chemin) return `<span class="np-lien-mort" title="note non publiée">${ech(texte)}</span>`;
       const frag = ancre ? "#" + encodeURIComponent(slug(ancre)) : "";
       return `[${texte}](?note=${encodeURIComponent(chemin)}${frag})`;
     });
@@ -419,7 +429,7 @@
     const items = titres.map((h) => {
       if (!h.id) h.id = slug(h.textContent);
       const cls = h.tagName === "H3" ? ' class="np-toc-3"' : "";
-      return `<li${cls}><a href="#${h.id}">${h.textContent}</a></li>`;
+      return `<li${cls}><a href="#${attr(h.id)}">${ech(h.textContent)}</a></li>`;
     });
     return `<nav class="np-toc"><b>Sommaire</b><ul>${items.join("")}</ul></nav>`;
   }
@@ -436,8 +446,8 @@
     const morceaux = chemin.replace(/\.excalidraw(\.md)?$|\.md$/i, "").split("/");
     const nom = morceaux.pop();
     const dossiers = morceaux.map((d, i) =>
-      `<a href="?dossier=${encodeURIComponent(morceaux.slice(0, i + 1).join("/"))}">${d}</a>`).join(" › ");
-    return `<p class="np-ariane"><a href="?">Notes</a>${dossiers ? " › " + dossiers : ""} › <b>${nom}</b></p>`;
+      `<a href="?dossier=${encodeURIComponent(morceaux.slice(0, i + 1).join("/"))}">${ech(d)}</a>`).join(" › ");
+    return `<p class="np-ariane"><a href="?">Notes</a>${dossiers ? " › " + dossiers : ""} › <b>${ech(nom)}</b></p>`;
   }
 
   async function afficherNote(chemin) {
@@ -459,7 +469,7 @@
     try {
       texte = await lire(chemin);
     } catch (e) {
-      cible.innerHTML = `<div class="np-erreur"><h2>Note indisponible</h2><p>${e.message}</p>
+      cible.innerHTML = `<div class="np-erreur"><h2>Note indisponible</h2><p>${ech(e.message)}</p>
         <p>Cette note n'est peut-être pas publiée : <code>NotesPubliques</code> est un
         sous-ensemble filtré des notes privées.</p><p><a href="?">Revenir à l'index</a></p></div>`;
       return;
@@ -475,7 +485,7 @@
                  || !(meta.publication || []).includes("notes-publiques"))) {
       cible.innerHTML = fildAriane(chemin) + `<div class="np-erreur">
         <h2>Note non publiée</h2>
-        <p>Cette note porte <code>confidentialite: ${meta.confidentialite || "—"}</code>
+        <p>Cette note porte <code>confidentialite: ${ech(meta.confidentialite || "—")}</code>
            et n'est pas destinée au domaine public.</p>
         <p><a href="?">Revenir à l'index</a></p></div>`;
       document.title = "Note non publiée — Logikascium";
@@ -596,29 +606,29 @@
       const nom = chemin.replace(/\.md$/, "").split("/").pop();
       const dossier = chemin.includes("/") ? chemin.split("/").slice(0, -1).join("/") : "";
       if (pile.includes(chemin) || pile.length > 3) {
-        noeud.innerHTML = `<p class="np-erreur">Transclusion circulaire ou trop profonde : ${nom}</p>`;
+        noeud.innerHTML = `<p class="np-erreur">Transclusion circulaire ou trop profonde : ${ech(nom)}</p>`;
         continue;
       }
       let texte;
       try {
         texte = await lireEnCache(chemin);
       } catch (e) {
-        noeud.innerHTML = `<p class="np-erreur">Note transcluse indisponible : ${e.message}</p>`;
+        noeud.innerHTML = `<p class="np-erreur">Note transcluse indisponible : ${ech(e.message)}</p>`;
         continue;
       }
       const { meta, corps } = separerFrontmatter(texte);
       if (meta && (meta.confidentialite !== "publique"
                    || !(meta.publication || []).includes("notes-publiques"))) {
-        noeud.innerHTML = `<p class="np-erreur">Note non publiée : ${nom}</p>`;
+        noeud.innerHTML = `<p class="np-erreur">Note non publiée : ${ech(nom)}</p>`;
         continue;
       }
       const md = ancre ? extraireSection(corps, ancre) : corps;
       if (md === null) {
-        noeud.innerHTML = `<p class="np-erreur">Section « ${ancre} » introuvable dans ${nom}</p>`;
+        noeud.innerHTML = `<p class="np-erreur">Section « ${ech(ancre)} » introuvable dans ${ech(nom)}</p>`;
         continue;
       }
       const lien = `?note=${encodeURIComponent(chemin)}${ancre ? "#" + encodeURIComponent(slug(ancre)) : ""}`;
-      noeud.innerHTML = `<p class="np-transclusion-source">↪ <a href="${lien}">${nom}${ancre ? " › " + ancre : ""}</a></p>`
+      noeud.innerHTML = `<p class="np-transclusion-source">↪ <a href="${lien}">${ech(nom)}${ancre ? " › " + ech(ancre) : ""}</a></p>`
         + `<div class="np-transclusion-corps">${assainir(marked.parse(transformerLiensObsidian(md, dossier)))}</div>`;
       const bloc = noeud.querySelector(".np-transclusion-corps");
       reecrireImagesRelatives(bloc, dossier);
@@ -686,7 +696,7 @@
         });
         adapterGrandDessin(noeud);
       } catch (e) {
-        noeud.innerHTML = `<p class="np-erreur">Dessin illisible : ${e.message}</p>`;
+        noeud.innerHTML = `<p class="np-erreur">Dessin illisible : ${ech(e.message)}</p>`;
       }
     }
   }
@@ -793,13 +803,13 @@
     // support de cours au même titre qu'une note, mais on doit savoir avant de
     // cliquer qu'on ouvre un schéma et non un texte.
     const entree = (n) => estDessin(n.chemin)
-      ? `<li class="np-dessin-item"><a href="?note=${encodeURIComponent(n.chemin)}">${n.nom.replace(/\.excalidraw$/i, "")}</a>`
+      ? `<li class="np-dessin-item"><a href="?note=${encodeURIComponent(n.chemin)}">${ech(n.nom.replace(/\.excalidraw$/i, ""))}</a>`
         + ` <span class="np-etiquette">dessin</span></li>`
-      : `<li><a href="?note=${encodeURIComponent(n.chemin)}">${n.nom}</a></li>`;
+      : `<li><a href="?note=${encodeURIComponent(n.chemin)}">${ech(n.nom)}</a></li>`;
     const liste = (ns) => `<ul class="np-liste">${ns.sort(trierNotes).map(entree).join("")}</ul>`;
     if (cles.length === 1 && cles[0] === racineDossier) return liste(sous[racineDossier]);
     return cles.map((d) => {
-      const titre = d === racineDossier ? "" : `<h3>${d.split("/").slice(1).join(" › ")}</h3>`;
+      const titre = d === racineDossier ? "" : `<h3>${ech(d.split("/").slice(1).join(" › "))}</h3>`;
       return `<div class="np-livre">${titre}${liste(sous[d])}</div>`;
     }).join("");
   }
@@ -863,7 +873,7 @@
   /* ------------------------------------------------------------ route ---- */
   function afficherPanne(titre, message) {
     document.getElementById("np-contenu").innerHTML =
-      `<div class="np-erreur"><h2>${titre}</h2><p>${message}</p>
+      `<div class="np-erreur"><h2>${ech(titre)}</h2><p>${ech(message)}</p>
        <p>Les fichiers restent lisibles sur
           <a href="https://github.com/${DEPOT.proprietaire}/${DEPOT.nom}"
              rel="noopener">GitHub</a>.</p></div>`;
