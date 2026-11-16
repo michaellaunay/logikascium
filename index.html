@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Logikascium transforme vos documents, archives et GED en bases de connaissances augmentées par l'IA : OCR, Markdown, RAG, recherche sémantique, workflows et assistants documentaires sourcés.">
-  <title>Logikascium – Bases de connaissances augmentées par l'IA</title>
+  <meta name="description" content="Logikascium prend en charge toute la chaîne de la connaissance : numérisation, curation, organisation, traduction, automatisation, exploitation par l'IA, sécurisation et diffusion, sur le socle ouvert OSIA (Markdown, Git). En développement : Kunereti, la délibération répartie sans serveur central.">
+  <title>Logikascium – Chaîne de la connaissance, OSIA et Kunereti</title>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.logikascium.com/">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Logikascium – Chaîne de la connaissance, OSIA et Kunereti">
+  <meta property="og:description" content="De la numérisation à la transmission : bases de connaissances sur le socle ouvert OSIA, sécurisation des usages d'IA, diffusion. En développement : Kunereti, la délibération répartie sans serveur central.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0/css/bootstrap.min.css">
@@ -22,11 +27,20 @@
       --muted: #626b79;
       --muted-2: #89919f;
       --border: #e6dfd2;
+      --card: rgba(255,253,248,.72);
+      /* surfaces sombres : Kunereti, À propos, blocs de code */
+      --mint: #74dfa8;
+      --on-dark: #eef2f7;
+      --on-dark-muted: #a8b1c0;
+      --card-dark: rgba(255,255,255,.055);
+      --border-dark: rgba(255,255,255,.10);
       --shadow: 0 24px 80px rgba(13, 17, 23, 0.10);
       --shadow-soft: 0 16px 40px rgba(13, 17, 23, 0.07);
       --radius-lg: 28px;
       --radius-md: 18px;
       --radius-sm: 12px;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
     * { box-sizing: border-box; }
@@ -43,33 +57,11 @@
     }
 
     a { color: inherit; }
-    .container { max-width: 1160px; }
+    /* marges latérales : 12 px sur mobile, 32 px dès la tablette ; la largeur utile sur grand écran reste de 1136 px */
+    .container { max-width: 1200px; padding-left: clamp(.75rem, 3.2vw, 2rem); padding-right: clamp(.75rem, 3.2vw, 2rem); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-    /* ── LANG SWITCHER ── */
-    #notes { background: var(--paper-2); }
-    .notes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.25rem;
-      margin-top: 2rem;
-    }
-    .note-card {
-      display: block;
-      padding: 1.5rem;
-      border: 1px solid rgba(13, 17, 23, .12);
-      border-radius: 14px;
-      background: var(--paper);
-      color: inherit;
-      text-decoration: none;
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    }
-    .note-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--accent);
-      box-shadow: 0 10px 24px rgba(13, 17, 23, .08);
-    }
-    .note-card h4 { margin: 0 0 .4rem; font-weight: 700; }
-    .note-card p { margin: 0; opacity: .78; font-size: .95rem; }
+    /* ── NAVIGATION ── */
     .lang-switcher {
       display: inline-flex;
       align-items: center;
@@ -126,7 +118,7 @@
       color: #fff;
       background: linear-gradient(145deg, #d28e46, #b8472d);
       box-shadow: 0 10px 24px rgba(184,71,45,0.24);
-      font-family: 'DM Serif Display', serif;
+      font-family: var(--serif);
       font-size: 1.1rem;
     }
 
@@ -145,6 +137,7 @@
       background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2813,17,23,.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
     }
 
+    /* ── PHOTO D'AMBIANCE ── */
     .ambient-photo {
       position: fixed;
       inset: 0;
@@ -190,6 +183,9 @@
         to   { transform: scale(1.075) translate3d(0.9%, 0.5%, 0); }
       }
     }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
 
     @media (max-width: 768px) {
       .ambient-photo::before {
@@ -205,16 +201,10 @@
       }
     }
 
+    /* ── SECTIONS ET TITRES ── */
     section { padding: 6rem 0; }
+    section[id] { scroll-margin-top: .75rem; }
     section + section { border-top: 1px solid rgba(230,223,210,0.72); }
-
-    .hero { padding: 6.6rem 0 5.6rem; position: relative; overflow: hidden; }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
-      gap: 4rem;
-      align-items: center;
-    }
 
     .eyebrow, .section-label {
       display: inline-flex;
@@ -235,10 +225,20 @@
       box-shadow: 0 0 0 6px rgba(210,142,70,.16);
     }
 
-    h1, h2.section-title, .serif { font-family: 'DM Serif Display', Georgia, serif; letter-spacing: -0.035em; }
+    h1, h2.section-title, .serif { font-family: var(--serif); letter-spacing: -0.035em; }
     h1 { max-width: 820px; margin: 0 0 1.35rem; font-size: clamp(2.8rem, 7vw, 5.2rem); line-height: .98; }
     h1 em { color: var(--accent); }
+    h2.section-title { font-size: clamp(2rem, 4.5vw, 3.25rem); line-height: 1.06; margin: 0 0 1rem; }
+    .section-intro { color: var(--muted); max-width: 760px; font-size: 1.06rem; margin-bottom: 0; }
 
+    /* ── HERO ── */
+    .hero { padding: 6.6rem 0 5.6rem; position: relative; overflow: hidden; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      gap: 4rem;
+      align-items: center;
+    }
     .hero-sub { max-width: 670px; margin: 0 0 2rem; color: var(--muted); font-size: 1.12rem; line-height: 1.75; }
     .hero-actions { display: flex; flex-wrap: wrap; gap: .85rem; margin-bottom: 2.25rem; }
 
@@ -266,108 +266,223 @@
     .terminal-top { display: flex; align-items: center; justify-content: space-between; padding: .95rem 1.1rem; border-bottom: 1px solid rgba(255,255,255,.08); color: #7d8796; font-size: .78rem; font-weight: 700; }
     .dots { display:flex; gap:.4rem; }
     .dots span { width: 10px; height: 10px; border-radius: 999px; background: #d28e46; opacity: .8; }
-    .terminal-body { padding: 1.35rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .82rem; line-height: 1.9; }
-    .terminal-body .muted { color: #6e7a8e; }
-    .terminal-body .accent { color: #1a7c3b; font-weight: 800; }
+    .terminal-body { padding: 1.35rem; font-family: var(--mono); font-size: .82rem; line-height: 1.9; }
+    /* une ligne par maillon ; si elle passe à la ligne, la suite est en retrait comme en YAML */
+    .terminal-body .ln { display: block; padding-left: 2.4ch; text-indent: -2.4ch; }
+    .terminal-body .muted { color: #8492a6; }
+    .terminal-body .accent { color: var(--mint); font-weight: 800; }
 
     .mini-card-grid { position: relative; display: grid; grid-template-columns: repeat(2, 1fr); gap: .85rem; margin-top: .85rem; }
     .mini-card { padding: 1rem; border-radius: 16px; background: rgba(255,255,255,.85); border: 1px solid rgba(230,223,210,.9); }
     .mini-card strong { display:block; font-size: .88rem; margin-bottom: .25rem; }
     .mini-card span { display:block; color: var(--muted); font-size: .76rem; line-height: 1.5; }
 
-    h2.section-title { font-size: clamp(2rem, 4.5vw, 3.25rem); line-height: 1.06; margin: 0 0 1rem; }
-    .section-intro { color: var(--muted); max-width: 760px; font-size: 1.06rem; margin-bottom: 0; }
-
-    .term-tooltip { position: relative; display: inline-flex; align-items: baseline; cursor: help; color: var(--accent); font-weight: 800; border-bottom: 2px dotted rgba(184,71,45,.45); text-decoration: none; }
-    .term-tooltip::after { content: attr(data-tooltip); position: absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%) translateY(4px); width: min(430px, 86vw); padding: .95rem 1rem; border-radius: 14px; background: var(--ink); color: var(--paper); font-family: 'Inter', system-ui, sans-serif; font-size: .82rem; font-weight: 500; line-height: 1.55; letter-spacing: 0; box-shadow: var(--shadow); opacity: 0; visibility: hidden; pointer-events: none; z-index: 20; transition: opacity .16s ease, transform .16s ease, visibility .16s ease; }
-    .term-tooltip::before { content: ''; position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); border: 8px solid transparent; border-top-color: var(--ink); opacity: 0; visibility: hidden; pointer-events: none; z-index: 21; transition: opacity .16s ease, visibility .16s ease; }
-    .term-tooltip:hover::after, .term-tooltip:focus::after, .term-tooltip:hover::before, .term-tooltip:focus::before { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-
-    .problem-grid, .services-grid, .why-grid, .methode-steps { display: grid; gap: 1.25rem; margin-top: 3rem; }
+    /* ── CARTES ── */
+    .problem-grid, .why-grid, .methode-steps { display: grid; gap: 1.25rem; margin-top: 3rem; }
     .problem-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
-    .services-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
     .why-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
     .methode-steps { grid-template-columns: repeat(3, minmax(0,1fr)); counter-reset: step; }
 
-    .problem-card, .service-card, .why-card, .methode-step { position: relative; background: rgba(255,253,248,.72); border: 1px solid rgba(230,223,210,.9); border-radius: var(--radius-md); padding: 1.55rem; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-    .problem-card:hover, .service-card:hover, .why-card:hover, .methode-step:hover { transform: translateY(-4px); box-shadow: var(--shadow-soft); border-color: rgba(210,142,70,.40); }
+    .problem-card, .why-card, .methode-step, .chain-card { position: relative; background: var(--card); border: 1px solid rgba(230,223,210,.9); border-radius: var(--radius-md); padding: 1.55rem; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
+    .problem-card, .why-card, .methode-step { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+    .problem-card:hover, .why-card:hover, .methode-step:hover { transform: translateY(-4px); box-shadow: var(--shadow-soft); border-color: rgba(210,142,70,.40); }
 
-    .icon-badge { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); color: var(--accent); font-weight: 900; margin-bottom: 1rem; }
-    .problem-card h4, .service-card h3, .why-card h4, .methode-step h4 { font-size: 1rem; font-weight: 800; margin-bottom: .45rem; letter-spacing: -.02em; }
-    .service-card h3 { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.45rem; font-weight: 400; line-height: 1.1; }
-    .problem-card p, .service-card p, .why-card p, .methode-step p { color: var(--muted); font-size: .9rem; margin: 0; line-height: 1.65; }
-    .service-num { color: var(--accent); font-size: .75rem; font-weight: 900; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.75rem; }
+    .problem-card h3, .why-card h3, .methode-step h3 { font-size: 1rem; font-weight: 800; margin: 0 0 .45rem; letter-spacing: -.02em; }
+    .problem-card p, .why-card p, .methode-step p { color: var(--muted); font-size: .9rem; margin: 0; line-height: 1.65; }
+    /* le constat n'est pas une suite d'étapes : un filet, pas de numéro */
+    .problem-card::before { content: ''; display: block; width: 28px; height: 3px; border-radius: 2px; background: var(--accent-2); margin-bottom: 1rem; }
 
-    .pipeline-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 3rem; align-items: center; margin-top: 3rem; }
-    .pipeline { background: #101722; border: 1px solid rgba(255,255,255,.07); border-radius: 24px; padding: 1.35rem; box-shadow: var(--shadow); }
-    .pipeline-code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: #0b111b; color: #b7eec8; border-radius: 18px; padding: 1.35rem; font-size: .86rem; line-height: 1.95; overflow: auto; }
-    .pipeline-code .arrow { color: #687386; }
-    .pipeline-code .highlight { color: #68e4a4; font-weight: 900; }
-    .pipeline-caption { color: #8b98aa; font-size: .78rem; margin: 0 0 .8rem .3rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    .methode-step { counter-increment: step; padding-top: 2.2rem; }
+    .methode-step::before { content: counter(step, decimal-leading-zero); position: absolute; top: 1rem; right: 1.1rem; color: rgba(184,71,45,.20); font-family: var(--serif); font-size: 2.35rem; line-height: 1; }
 
     ul.check-list { list-style: none; padding: 0; margin: 1rem 0 0; }
     ul.check-list li { position: relative; padding-left: 1.65rem; margin: .55rem 0; color: var(--muted); font-size: .92rem; }
     ul.check-list li::before { content: '✓'; position: absolute; left: 0; top: .02rem; color: var(--accent); font-weight: 900; }
 
-    .usecase-list { margin-top: 3rem; border-radius: var(--radius-lg); overflow:hidden; border: 1px solid var(--border); background: rgba(255,253,248,.72); }
-    .usecase-item { display: grid; grid-template-columns: 72px 1fr; gap: 1rem; padding: 1.55rem 1.7rem; border-bottom: 1px solid var(--border); }
-    .usecase-item:last-child { border-bottom: none; }
-    .usecase-num { font-family: 'DM Serif Display', Georgia, serif; font-size: 2.3rem; color: rgba(184,71,45,.24); line-height: 1; }
-    .usecase-item h4 { font-weight: 850; margin:0 0 .3rem; }
-    .usecase-item p { color: var(--muted); margin:0; font-size:.92rem; }
-
-    .methode-step { counter-increment: step; padding-top: 2.2rem; }
-    .methode-step::before { content: counter(step, decimal-leading-zero); position: absolute; top: 1rem; right: 1.1rem; color: rgba(184,71,45,.20); font-family: 'DM Serif Display', Georgia, serif; font-size: 2.35rem; line-height: 1; }
-
     .tag-cloud { display:flex; flex-wrap:wrap; gap:.45rem; margin-top: 1rem; }
     .tag { display: inline-flex; align-items: center; min-height: 30px; padding: .28rem .7rem; background: rgba(223,242,233,.78); border: 1px solid rgba(184,71,45,.14); color: var(--accent); border-radius: 999px; font-size: .78rem; font-weight: 750; }
 
-    .about-section { background: radial-gradient(circle at 80% 0%, rgba(210,142,70,.24), transparent 30rem), linear-gradient(160deg, #0d1117, #121b26 58%, #0d1117); color: #eef2f7; }
-    .about-section .section-intro, .about-section p { color: #a8b1c0; }
-    .about-section .section-label { color: #69dba2; }
-    .about-section .section-label::before { background:#69dba2; box-shadow:0 0 0 6px rgba(105,219,162,.12); }
-    .about-section a { color: #7ee3ae; }
+    .chip { display: inline-flex; align-items: center; min-height: 26px; padding: .12rem .65rem; border-radius: 999px; font-size: .74rem; font-weight: 750; line-height: 1.3; }
+    .chip-brick { background: var(--ink); color: var(--paper); }
+    .chip-status { background: var(--accent-soft); color: #8a341f; }
+    .chip-soon { border: 1px dashed var(--muted-2); color: var(--muted); }
+    .text-link { color: var(--accent); font-size: .84rem; font-weight: 700; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .text-link:hover { color: #963820; }
 
-    .about-profile { display: grid; grid-template-columns: 140px 1fr; gap: 2rem; align-items: start; margin-top: 3rem; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.10); border-radius: var(--radius-lg); padding: 2rem; }
+    /* ── LA CHAÎNE : six maillons reliés par un fil ── */
+    .chain-wrap { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 4rem; align-items: start; }
+    .chain-intro { position: sticky; top: 6.2rem; }
+    .chain-intro .section-intro { margin-bottom: 1.75rem; }
+
+    .chain { --node: 52px; --node-top: .5rem; --gap: 1.1rem; list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); counter-reset: maillon; }
+    .chain-item { position: relative; display: grid; grid-template-columns: var(--node) minmax(0, 1fr); column-gap: 1.15rem; align-items: start; counter-increment: maillon; }
+    /* le fil part sous un nœud et s'arrête au-dessus du suivant */
+    .chain-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: calc(var(--node) / 2 - 1px);
+      top: calc(var(--node-top) + var(--node) + 8px);
+      bottom: calc(8px - var(--gap) - var(--node-top));
+      width: 2px;
+      border-radius: 2px;
+      background: rgba(184,71,45,.30);
+    }
+    .chain-item.leads-to-soon::before { background: repeating-linear-gradient(to bottom, rgba(137,145,159,.75) 0 5px, transparent 5px 11px); }
+    .chain-node {
+      width: var(--node); height: var(--node); margin-top: var(--node-top);
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--paper-2);
+      border: 2px solid rgba(184,71,45,.55);
+      color: var(--accent);
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+    .chain-node::before { content: counter(maillon); }
+    .chain-card { padding: 1.35rem 1.5rem 1.4rem; }
+    .chain-card h3 { font-family: var(--serif); font-size: 1.55rem; font-weight: 400; line-height: 1.1; letter-spacing: -.02em; margin: 0 0 .3rem; }
+    .chain-lead { margin: 0 0 .5rem; color: var(--ink); font-size: .95rem; font-weight: 700; line-height: 1.5; }
+    .chain-desc { margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.65; }
+    .chain-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .65rem; margin: .95rem 0 0; }
+    /* le maillon à venir : même forme, en pointillé */
+    .chain-item.is-soon .chain-node { border-style: dashed; border-color: var(--muted-2); color: var(--muted); }
+    .chain-item.is-soon .chain-card { border-style: dashed; border-color: rgba(137,145,159,.55); background: rgba(255,253,248,.5); }
+
+    /* ── BLOCS SOMBRES : pile OSIA, fichier Kunereti ── */
+    .pipeline-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 3rem; align-items: center; margin-top: 3rem; }
+    .pipeline { background: #101722; border: 1px solid rgba(255,255,255,.07); border-radius: 24px; padding: 1.35rem; box-shadow: var(--shadow); }
+    .pipeline-code { font-family: var(--mono); background: #0b111b; color: #b7eec8; border-radius: 18px; padding: 1.35rem; font-size: .82rem; line-height: 1.85; overflow: auto; }
+    /* le fichier ne doit jamais élargir la page : sur un écran très étroit, une ligne se replie */
+    pre.pipeline-code { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .pipeline-code .k { color: #7f8ca0; }
+    .pipeline-code .highlight { color: var(--mint); font-weight: 800; }
+    .pipeline-caption { color: #8b98aa; font-size: .78rem; margin: 0 0 .8rem .3rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    .pipeline-caption.is-path { font-family: var(--mono); font-weight: 600; letter-spacing: 0; text-transform: none; }
+    .pipeline-note { color: #8b98aa; font-size: .82rem; line-height: 1.55; margin: .9rem .3rem 0; }
+
+    .stack { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+    .stack li { display: grid; grid-template-columns: 1.4rem minmax(0, .85fr) minmax(0, 1.15fr); column-gap: .75rem; align-items: baseline; padding: .78rem 1rem; border-radius: 12px; background: #0b111b; border: 1px solid rgba(255,255,255,.06); }
+    .stack-n { font-family: var(--serif); font-size: 1.05rem; color: #8492a6; }
+    .stack-name { color: var(--on-dark); font-size: .92rem; font-weight: 750; }
+    .stack-what { color: #8b98aa; font-size: .82rem; line-height: 1.45; }
+    /* la couche du bas porte tout le reste */
+    .stack li.is-base { border-color: rgba(116,223,168,.5); }
+    .stack li.is-base .stack-n, .stack li.is-base .stack-name { color: var(--mint); }
+
+    .osia-side > p { color: var(--muted); font-size: 1rem; margin: 0; }
+    .osia-course { margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid var(--border); }
+    .osia-course p { color: var(--muted); font-size: .92rem; margin: 0 0 1rem; }
+
+    /* ── SECTIONS SOMBRES ── */
+    .dark-section { background: radial-gradient(circle at 80% 0%, rgba(210,142,70,.24), transparent 30rem), linear-gradient(160deg, #0d1117, #121b26 58%, #0d1117); color: var(--on-dark); }
+    .dark-section .section-intro, .dark-section p { color: var(--on-dark-muted); }
+    .dark-section .section-label { color: var(--mint); }
+    .dark-section .section-label::before { background: var(--mint); box-shadow: 0 0 0 6px rgba(116,223,168,.12); }
+    .dark-section a { color: var(--mint); }
+    .dark-section ul.check-list li { color: var(--on-dark-muted); }
+    .dark-section ul.check-list li::before { color: var(--mint); }
+    .dark-section :focus-visible { outline-color: var(--mint); }
+
+    .btn-white { background: #fff; color: var(--accent); }
+    .btn-white:hover { color: var(--accent); transform: translateY(-2px); box-shadow: 0 18px 34px rgba(0,0,0,.14); }
+    .btn-white-outline { border: 1px solid rgba(255,255,255,.55); color:#fff; background:rgba(255,255,255,.08); }
+    .btn-white-outline:hover { color:#fff; border-color:#fff; transform:translateY(-2px); background:rgba(255,255,255,.15); }
+    .dark-section a.btn-white, .dark-section a.btn-white:hover { color: var(--accent); }
+
+    /* ── KUNERETI ── */
+    .kr-section { background: radial-gradient(circle at 12% 0%, rgba(210,142,70,.22), transparent 30rem), radial-gradient(circle at 96% 100%, rgba(116,223,168,.09), transparent 28rem), linear-gradient(200deg, #0d1117, #121b26 58%, #0d1117); }
+    .kr-wrap { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); gap: 1.5rem; align-items: start; margin-top: 3rem; }
+    .kr-features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .kr-card { background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: var(--radius-md); padding: 1.4rem; }
+    .kr-card h3 { color: var(--on-dark); font-size: 1.02rem; font-weight: 800; letter-spacing: -.02em; margin: 0 0 .45rem; }
+    .kr-card p { font-size: .9rem; line-height: 1.65; margin: 0; }
+    .kr-file { margin: 0; }
+    .kr-status { margin-top: 1rem; padding: 1.5rem 1.6rem; border: 1px solid rgba(116,223,168,.30); border-radius: var(--radius-md); background: rgba(116,223,168,.05); }
+    .kr-status h3 { color: var(--mint); font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .6rem; }
+    .kr-status p { font-size: .94rem; margin: 0 0 1.3rem; }
+    .kr-status .hero-actions { margin-bottom: 0; gap: .6rem; }
+    .kr-status .hero-actions a { min-height: 44px; padding: .65rem 1.05rem; font-size: .86rem; }
+    .kr-name { margin: 1.1rem .3rem 0; font-size: .88rem; }
+
+    /* ── À PROPOS ── */
+    .about-profile { display: grid; grid-template-columns: 140px 1fr; gap: 2rem; align-items: start; margin-top: 3rem; background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: var(--radius-lg); padding: 2rem; }
     .about-profile img { width: 124px; height: 124px; border-radius: 28px; object-fit: cover; border: 1px solid rgba(255,255,255,.18); box-shadow: 0 20px 50px rgba(0,0,0,.28); }
-    .about-profile h3 { font-family: 'DM Serif Display', Georgia, serif; font-size: 2rem; margin:0; }
-    .about-profile .role { color: #74dfa8; font-weight: 800; font-size: .92rem; margin: .25rem 0 1rem; }
+    .about-profile h3 { font-family: var(--serif); font-size: 2rem; margin:0; }
+    .about-profile .role { color: var(--mint); font-weight: 800; font-size: .92rem; margin: .25rem 0 1rem; }
 
     .about-achievements { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .achievement { background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.10); border-radius: 18px; padding: 1.25rem; }
-    .achievement .val { font-family: 'DM Serif Display', Georgia, serif; font-size: 2.2rem; color:#79e2ad; line-height:1; }
-    .achievement .lbl { color:#a8b1c0; font-size:.82rem; margin-top:.35rem; }
+    .achievement { background: var(--card-dark); border: 1px solid var(--border-dark); border-radius: 18px; padding: 1.25rem; }
+    .achievement .val { font-family: var(--serif); font-size: 2.2rem; color: var(--mint); line-height:1; }
+    .achievement .lbl { color: var(--on-dark-muted); font-size:.82rem; margin-top:.35rem; }
 
     .about-columns { display:grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem; }
-    .about-columns h4 { color:#f4f7fb; font-size:1rem; font-weight:850; margin-bottom:1rem; }
+    .about-columns h3 { color:#f4f7fb; font-size:1rem; font-weight:850; margin-bottom:1rem; }
 
+    /* ── NOTES ── */
+    #notes { background: var(--paper-2); }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .note-card {
+      display: block;
+      padding: 1.5rem;
+      border: 1px solid rgba(13, 17, 23, .12);
+      border-radius: 14px;
+      background: var(--paper);
+      color: inherit;
+      text-decoration: none;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .note-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 24px rgba(13, 17, 23, .08);
+    }
+    .note-card h3 { margin: 0 0 .4rem; font-size: calc(1.275rem + .3vw); font-weight: 700; line-height: 1.2; }
+    @media (min-width: 1200px) { .note-card h3 { font-size: 1.5rem; } }
+    .note-card p { margin: 0; opacity: .78; font-size: .95rem; }
+
+    /* ── APPEL ET PIED DE PAGE ── */
     .cta-section { position: relative; overflow: hidden; background: linear-gradient(135deg, #d28e46, #b8472d); color: #fff; text-align: center; padding: 6.3rem 0; }
     .cta-section::before, .cta-section::after { content:''; position:absolute; border-radius:999px; background:rgba(255,255,255,.14); filter: blur(2px); }
     .cta-section::before { width: 360px; height: 360px; left:-140px; top:-120px; }
     .cta-section::after { width: 260px; height: 260px; right:-100px; bottom:-120px; }
     .cta-section .container { position:relative; z-index:1; }
-    .cta-section h2 { font-family:'DM Serif Display', Georgia, serif; font-size: clamp(2.1rem, 4.8vw, 4rem); line-height:1.02; margin-bottom:1rem; }
+    .cta-section h2 { font-family: var(--serif); font-size: clamp(2.1rem, 4.8vw, 4rem); line-height:1.02; margin-bottom:1rem; }
     .cta-section p { max-width: 640px; margin: 0 auto 2rem; color: rgba(255,255,255,.86); font-size:1.08rem; }
-    .btn-white { background: #fff; color: var(--accent); }
-    .btn-white:hover { color: var(--accent); transform: translateY(-2px); box-shadow: 0 18px 34px rgba(0,0,0,.14); }
-    .btn-white-outline { border: 1px solid rgba(255,255,255,.55); color:#fff; background:rgba(255,255,255,.08); }
-    .btn-white-outline:hover { color:#fff; border-color:#fff; transform:translateY(-2px); background:rgba(255,255,255,.15); }
+    .cta-section :focus-visible { outline-color: #fff; }
 
     .contact-footer { background:#080b10; color:#99a3b3; padding:3.2rem 0; font-size:.87rem; }
     .contact-footer strong { color:#edf2f7; }
-    .contact-footer a { color:#7ee3ae; text-decoration:none; }
+    .contact-footer a { color: var(--mint); text-decoration:none; }
+
+    .no-js-note { max-width: 1200px; margin: 0 auto; padding: 2rem clamp(.75rem, 3.2vw, 2rem); }
 
     @media (max-width: 991px) {
-      .hero-grid, .pipeline-wrap, .about-columns { grid-template-columns: 1fr; }
+      .hero-grid, .pipeline-wrap, .about-columns, .chain-wrap, .kr-wrap { grid-template-columns: minmax(0, 1fr); }
+      .chain-wrap { gap: 2.5rem; }
+      .chain-intro { position: static; }
       .problem-grid, .why-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .services-grid, .methode-steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .methode-steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .hero { padding-top: 4.8rem; }
     }
     @media (max-width: 680px) {
       section { padding: 4rem 0; }
-      .hero-proof, .problem-grid, .services-grid, .why-grid, .methode-steps, .about-achievements { grid-template-columns: 1fr; }
+      .hero-proof, .problem-grid, .why-grid, .methode-steps, .about-achievements, .kr-features { grid-template-columns: 1fr; }
       .about-profile { grid-template-columns: 1fr; padding: 1.3rem; }
-      .usecase-item { grid-template-columns: 1fr; }
+      .chain { --node: 42px; --node-top: .35rem; }
+      .chain-item { column-gap: .8rem; }
+      .chain-node { font-size: 1.15rem; }
+      .chain-card { padding: 1.15rem 1.15rem 1.2rem; }
+      .stack li { grid-template-columns: 1.4rem minmax(0, 1fr); }
+      .stack-what { grid-column: 2; }
+      .pipeline { padding: .9rem; }
+      .pipeline-code { padding: 1rem; font-size: .76rem; }
+      .kr-status { padding: 1.3rem; }
       h1 { font-size: clamp(2.55rem, 13vw, 3.7rem); }
     }
   </style>
@@ -383,22 +498,34 @@
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav gap-lg-3 align-items-lg-center">
-          <li class="nav-item"><a class="nav-link active" href="#" data-i18n="nav.home"></a></li>
           <li class="nav-item"><a class="nav-link" href="#services" data-i18n="nav.services"></a></li>
-          <li class="nav-item"><a class="nav-link" href="#methode" data-i18n="nav.method"></a></li>
+          <li class="nav-item"><a class="nav-link" href="#osia" data-i18n="nav.osia"></a></li>
+          <li class="nav-item"><a class="nav-link" href="#kunereti" data-i18n="nav.kunereti"></a></li>
           <li class="nav-item"><a class="nav-link" href="#about" data-i18n="nav.about"></a></li>
           <li class="nav-item"><a class="nav-link" href="./notes.html" data-i18n="nav.notes"></a></li>
           <li class="nav-item"><a class="nav-link" href="#contact" data-i18n="nav.contact"></a></li>
           <li class="nav-item ms-lg-2">
             <div class="lang-switcher">
-              <button class="lang-btn" id="btn-fr" onclick="setLang('fr')">FR</button>
-              <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+              <button type="button" class="lang-btn" id="btn-fr" onclick="setLang('fr')">FR</button>
+              <button type="button" class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
             </div>
           </li>
         </ul>
       </div>
     </div>
   </nav>
+
+  <noscript>
+    <p class="no-js-note">
+      Logikascium prend en charge toute la chaîne de la connaissance : numérisation, curation,
+      organisation, traduction, automatisation, exploitation par l'IA, sécurisation et diffusion,
+      sur le socle ouvert OSIA. Nous développons aussi Kunereti, un outil de délibération répartie
+      sans serveur central. Cette page a besoin de JavaScript pour afficher son contenu ; les notes
+      publiques restent lisibles sur
+      <a href="https://github.com/michaellaunay/NotesPubliques">GitHub</a>.
+      Contact : <a href="mailto:michaellaunay@logikascium.com">michaellaunay@logikascium.com</a>.
+    </p>
+  </noscript>
 
   <main>
     <section class="hero">
@@ -410,7 +537,7 @@
             <p class="hero-sub" data-i18n="hero.sub"></p>
             <div class="hero-actions">
               <a href="#contact" class="btn-primary-custom" data-i18n="hero.cta1"></a>
-              <a href="#services" class="btn-outline-custom" data-i18n="hero.cta2"></a>
+              <a href="#kunereti" class="btn-outline-custom" data-i18n="hero.cta2"></a>
             </div>
             <div class="hero-proof">
               <div class="proof-item"><strong data-i18n="proof.1.strong"></strong><span data-i18n="proof.1.span"></span></div>
@@ -420,7 +547,7 @@
           </div>
           <aside class="hero-card">
             <div class="terminal">
-              <div class="terminal-top"><span>knowledge-pipeline.yaml</span><div class="dots"><span></span><span></span><span></span></div></div>
+              <div class="terminal-top"><span data-i18n="terminal.title"></span><div class="dots"><span></span><span></span><span></span></div></div>
               <div class="terminal-body" data-i18n-html="terminal.body"></div>
             </div>
             <div class="mini-card-grid">
@@ -434,70 +561,139 @@
       </div>
     </section>
 
-    <section>
+    <section id="constat">
       <div class="container">
         <p class="section-label" data-i18n="problem.label"></p>
         <h2 class="section-title" data-i18n="problem.title"></h2>
         <p class="section-intro" data-i18n="problem.intro"></p>
         <div class="problem-grid">
-          <div class="problem-card"><div class="icon-badge">01</div><h4 data-i18n="problem.1.title"></h4><p data-i18n="problem.1.desc"></p></div>
-          <div class="problem-card"><div class="icon-badge">02</div><h4 data-i18n="problem.2.title"></h4><p data-i18n="problem.2.desc"></p></div>
-          <div class="problem-card"><div class="icon-badge">03</div><h4 data-i18n="problem.3.title"></h4><p data-i18n="problem.3.desc"></p></div>
-          <div class="problem-card"><div class="icon-badge">04</div><h4 data-i18n="problem.4.title"></h4><p data-i18n="problem.4.desc"></p></div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="container">
-        <p class="section-label" data-i18n="approach.label"></p>
-        <h2 class="section-title" data-i18n-html="approach.title"></h2>
-        <p class="section-intro" data-i18n-html="approach.intro"></p>
-        <div class="pipeline-wrap">
-          <div class="pipeline">
-            <p class="pipeline-caption" data-i18n="pipeline.caption"></p>
-            <div class="pipeline-code" data-i18n-html="pipeline.code"></div>
-          </div>
-          <div>
-            <p style="color:var(--muted);font-size:1rem;" data-i18n="pipeline.explainer"></p>
-            <ul class="check-list">
-              <li data-i18n="pipeline.check.1"></li>
-              <li data-i18n="pipeline.check.2"></li>
-              <li data-i18n="pipeline.check.3"></li>
-              <li data-i18n="pipeline.check.4"></li>
-              <li data-i18n="pipeline.check.5"></li>
-            </ul>
-          </div>
+          <div class="problem-card"><h3 data-i18n="problem.1.title"></h3><p data-i18n="problem.1.desc"></p></div>
+          <div class="problem-card"><h3 data-i18n="problem.2.title"></h3><p data-i18n="problem.2.desc"></p></div>
+          <div class="problem-card"><h3 data-i18n="problem.3.title"></h3><p data-i18n="problem.3.desc"></p></div>
+          <div class="problem-card"><h3 data-i18n="problem.4.title"></h3><p data-i18n="problem.4.desc"></p></div>
         </div>
       </div>
     </section>
 
     <section id="services">
       <div class="container">
-        <p class="section-label" data-i18n="services.label"></p>
-        <h2 class="section-title" data-i18n="services.title"></h2>
-        <p class="section-intro" data-i18n="services.intro"></p>
-        <div class="services-grid">
-          <div class="service-card"><p class="service-num">01</p><h3 data-i18n="svc.1.title"></h3><p data-i18n="svc.1.desc"></p></div>
-          <div class="service-card"><p class="service-num">02</p><h3 data-i18n="svc.2.title"></h3><p data-i18n="svc.2.desc"></p></div>
-          <div class="service-card"><p class="service-num">03</p><h3 data-i18n="svc.3.title"></h3><p data-i18n="svc.3.desc"></p></div>
-          <div class="service-card"><p class="service-num">04</p><h3 data-i18n="svc.4.title"></h3><p data-i18n="svc.4.desc"></p></div>
-          <div class="service-card"><p class="service-num">05</p><h3 data-i18n="svc.5.title"></h3><p data-i18n="svc.5.desc"></p></div>
-          <div class="service-card"><p class="service-num">06</p><h3 data-i18n="svc.6.title"></h3><p data-i18n="svc.6.desc"></p></div>
+        <div class="chain-wrap">
+          <div class="chain-intro">
+            <p class="section-label" data-i18n="services.label"></p>
+            <h2 class="section-title" data-i18n="services.title"></h2>
+            <p class="section-intro" data-i18n="services.intro"></p>
+            <a href="#contact" class="btn-outline-custom" data-i18n="services.cta"></a>
+          </div>
+          <ol class="chain" role="list">
+            <li class="chain-item">
+              <span class="chain-node" aria-hidden="true"></span>
+              <div class="chain-card">
+                <h3 data-i18n="chain.1.title"></h3>
+                <p class="chain-lead" data-i18n="chain.1.lead"></p>
+                <p class="chain-desc" data-i18n="chain.1.desc"></p>
+                <p class="chain-meta">
+                  <a class="text-link" href="./notes.html?note=cours%2FDu%20PDF%20scann%C3%A9%20au%20corpus%20exploitable%20OCR%20multimodal%20local%20avec%20olmOCR%202%20et%20Infinity-Parser2-Pro.md" data-i18n="chain.1.link"></a>
+                </p>
+              </div>
+            </li>
+            <li class="chain-item">
+              <span class="chain-node" aria-hidden="true"></span>
+              <div class="chain-card">
+                <h3 data-i18n="chain.2.title"></h3>
+                <p class="chain-lead" data-i18n="chain.2.lead"></p>
+                <p class="chain-desc" data-i18n="chain.2.desc"></p>
+                <p class="chain-meta">
+                  <span class="chip chip-brick">OSIA</span>
+                  <a class="text-link" href="#osia" data-i18n="chain.2.link"></a>
+                </p>
+              </div>
+            </li>
+            <li class="chain-item">
+              <span class="chain-node" aria-hidden="true"></span>
+              <div class="chain-card">
+                <h3 data-i18n="chain.3.title"></h3>
+                <p class="chain-lead" data-i18n="chain.3.lead"></p>
+                <p class="chain-desc" data-i18n="chain.3.desc"></p>
+                <p class="chain-meta">
+                  <a class="text-link" href="./notes.html?dossier=Livres%20de%20cours%2FRAG" data-i18n="chain.3.link"></a>
+                </p>
+              </div>
+            </li>
+            <li class="chain-item">
+              <span class="chain-node" aria-hidden="true"></span>
+              <div class="chain-card">
+                <h3 data-i18n="chain.4.title"></h3>
+                <p class="chain-lead" data-i18n="chain.4.lead"></p>
+                <p class="chain-desc" data-i18n="chain.4.desc"></p>
+                <p class="chain-meta">
+                  <span class="chip chip-brick">SemGard</span>
+                  <span class="chip chip-status" data-i18n="chain.4.status"></span>
+                  <a class="text-link" href="https://github.com/michaellaunay/semgard" rel="noopener" data-i18n="chain.4.link"></a>
+                </p>
+              </div>
+            </li>
+            <li class="chain-item leads-to-soon">
+              <span class="chain-node" aria-hidden="true"></span>
+              <div class="chain-card">
+                <h3 data-i18n="chain.5.title"></h3>
+                <p class="chain-lead" data-i18n="chain.5.lead"></p>
+                <p class="chain-desc" data-i18n="chain.5.desc"></p>
+                <p class="chain-meta">
+                  <span class="chip chip-brick">Biblioteko</span>
+                  <span class="chip chip-status" data-i18n="chain.5.status"></span>
+                  <a class="text-link" href="https://github.com/michaellaunay/biblioteko" rel="noopener" data-i18n="chain.5.link"></a>
+                </p>
+              </div>
+            </li>
+            <li class="chain-item is-soon">
+              <span class="chain-node" aria-hidden="true"></span>
+              <div class="chain-card">
+                <h3 data-i18n="chain.6.title"></h3>
+                <p class="chain-lead" data-i18n="chain.6.lead"></p>
+                <p class="chain-desc" data-i18n="chain.6.desc"></p>
+                <p class="chain-meta">
+                  <span class="chip chip-soon" data-i18n="chain.6.status"></span>
+                  <a class="text-link" href="./notes.html?note=cours%2FApprendre.md" data-i18n="chain.6.link"></a>
+                </p>
+              </div>
+            </li>
+          </ol>
         </div>
       </div>
     </section>
 
-    <section>
+    <section id="osia">
       <div class="container">
-        <p class="section-label" data-i18n="usecase.label"></p>
-        <h2 class="section-title" data-i18n="usecase.title"></h2>
-        <div class="usecase-list">
-          <div class="usecase-item"><div class="usecase-num">01</div><div><h4 data-i18n="uc.1.title"></h4><p data-i18n="uc.1.desc"></p></div></div>
-          <div class="usecase-item"><div class="usecase-num">02</div><div><h4 data-i18n="uc.2.title"></h4><p data-i18n="uc.2.desc"></p></div></div>
-          <div class="usecase-item"><div class="usecase-num">03</div><div><h4 data-i18n="uc.3.title"></h4><p data-i18n="uc.3.desc"></p></div></div>
-          <div class="usecase-item"><div class="usecase-num">04</div><div><h4 data-i18n="uc.4.title"></h4><p data-i18n="uc.4.desc"></p></div></div>
-          <div class="usecase-item"><div class="usecase-num">05</div><div><h4 data-i18n="uc.5.title"></h4><p data-i18n="uc.5.desc"></p></div></div>
+        <p class="section-label" data-i18n="osia.label"></p>
+        <h2 class="section-title" data-i18n="osia.title"></h2>
+        <p class="section-intro" data-i18n="osia.intro"></p>
+        <div class="pipeline-wrap">
+          <div class="pipeline">
+            <p class="pipeline-caption" data-i18n="stack.caption"></p>
+            <ul class="stack" role="list">
+              <li><span class="stack-n">6</span><span class="stack-name" data-i18n="stack.6.name"></span><span class="stack-what" data-i18n="stack.6.what"></span></li>
+              <li><span class="stack-n">5</span><span class="stack-name" data-i18n="stack.5.name"></span><span class="stack-what" data-i18n="stack.5.what"></span></li>
+              <li><span class="stack-n">4</span><span class="stack-name" data-i18n="stack.4.name"></span><span class="stack-what" data-i18n="stack.4.what"></span></li>
+              <li><span class="stack-n">3</span><span class="stack-name" data-i18n="stack.3.name"></span><span class="stack-what" data-i18n="stack.3.what"></span></li>
+              <li><span class="stack-n">2</span><span class="stack-name" data-i18n="stack.2.name"></span><span class="stack-what" data-i18n="stack.2.what"></span></li>
+              <li class="is-base"><span class="stack-n">1</span><span class="stack-name" data-i18n="stack.1.name"></span><span class="stack-what" data-i18n="stack.1.what"></span></li>
+            </ul>
+            <p class="pipeline-note" data-i18n="stack.note"></p>
+          </div>
+          <div class="osia-side">
+            <p data-i18n="osia.explainer"></p>
+            <ul class="check-list">
+              <li data-i18n="osia.check.1"></li>
+              <li data-i18n="osia.check.2"></li>
+              <li data-i18n="osia.check.3"></li>
+              <li data-i18n="osia.check.4"></li>
+              <li data-i18n="osia.check.5"></li>
+            </ul>
+            <div class="osia-course">
+              <p data-i18n="osia.course"></p>
+              <a class="btn-outline-custom" href="./notes.html?note=cours%2FObsidian%20OSIA%20Construire%20son%20syst%C3%A8me%20d%27exploitation%20personnel%20augment%C3%A9%20par%20l%27IA.md" data-i18n="osia.course.link"></a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -508,12 +704,12 @@
         <h2 class="section-title" data-i18n="method.title"></h2>
         <p class="section-intro" data-i18n="method.intro"></p>
         <div class="methode-steps">
-          <div class="methode-step"><h4 data-i18n="step.1.title"></h4><p data-i18n="step.1.desc"></p></div>
-          <div class="methode-step"><h4 data-i18n="step.2.title"></h4><p data-i18n="step.2.desc"></p></div>
-          <div class="methode-step"><h4 data-i18n="step.3.title"></h4><p data-i18n="step.3.desc"></p></div>
-          <div class="methode-step"><h4 data-i18n="step.4.title"></h4><p data-i18n="step.4.desc"></p></div>
-          <div class="methode-step"><h4 data-i18n="step.5.title"></h4><p data-i18n="step.5.desc"></p></div>
-          <div class="methode-step"><h4 data-i18n="step.6.title"></h4><p data-i18n="step.6.desc"></p></div>
+          <div class="methode-step"><h3 data-i18n="step.1.title"></h3><p data-i18n="step.1.desc"></p></div>
+          <div class="methode-step"><h3 data-i18n="step.2.title"></h3><p data-i18n="step.2.desc"></p></div>
+          <div class="methode-step"><h3 data-i18n="step.3.title"></h3><p data-i18n="step.3.desc"></p></div>
+          <div class="methode-step"><h3 data-i18n="step.4.title"></h3><p data-i18n="step.4.desc"></p></div>
+          <div class="methode-step"><h3 data-i18n="step.5.title"></h3><p data-i18n="step.5.desc"></p></div>
+          <div class="methode-step"><h3 data-i18n="step.6.title"></h3><p data-i18n="step.6.desc"></p></div>
         </div>
         <div class="mt-5">
           <p class="section-label" data-i18n="tech.label"></p>
@@ -525,21 +721,56 @@
       </div>
     </section>
 
-    <section>
+    <section class="dark-section kr-section" id="kunereti">
+      <div class="container">
+        <p class="section-label" data-i18n="kr.label"></p>
+        <h2 class="section-title" data-i18n="kr.title"></h2>
+        <p class="section-intro" data-i18n="kr.intro"></p>
+        <div class="kr-wrap">
+          <div>
+            <div class="kr-features">
+              <div class="kr-card"><h3 data-i18n="kr.1.title"></h3><p data-i18n="kr.1.desc"></p></div>
+              <div class="kr-card"><h3 data-i18n="kr.2.title"></h3><p data-i18n="kr.2.desc"></p></div>
+              <div class="kr-card"><h3 data-i18n="kr.3.title"></h3><p data-i18n="kr.3.desc"></p></div>
+              <div class="kr-card"><h3 data-i18n="kr.4.title"></h3><p data-i18n="kr.4.desc"></p></div>
+            </div>
+            <div class="kr-status">
+              <h3 data-i18n="kr.status.title"></h3>
+              <p data-i18n="kr.status.desc"></p>
+              <div class="hero-actions">
+                <a class="btn-white" href="./notes.html?note=kunereti%2Fpr%C3%A9sentation_kunereti.md" data-i18n="kr.link.1"></a>
+                <a class="btn-white-outline" href="./notes.html?note=kunereti%2Fkunereti.md" data-i18n="kr.link.2"></a>
+                <a class="btn-white-outline" href="./notes.html?note=kunereti%2FAnalyse%2FKR%20Analyse.md" data-i18n="kr.link.3"></a>
+              </div>
+            </div>
+          </div>
+          <div>
+            <figure class="pipeline kr-file">
+              <figcaption class="pipeline-caption is-path">amendments/01KB7M3QX2.md</figcaption>
+              <pre class="pipeline-code" data-i18n-html="kr.file.code"></pre>
+              <p class="pipeline-note" data-i18n="kr.file.note"></p>
+            </figure>
+            <p class="kr-name" data-i18n-html="kr.name"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pourquoi">
       <div class="container">
         <p class="section-label" data-i18n="why.label"></p>
         <h2 class="section-title" data-i18n="why.title"></h2>
         <p class="section-intro" data-i18n="why.intro"></p>
         <div class="why-grid">
-          <div class="why-card"><h4 data-i18n="why.1.title"></h4><p data-i18n="why.1.desc"></p></div>
-          <div class="why-card"><h4 data-i18n="why.2.title"></h4><p data-i18n="why.2.desc"></p></div>
-          <div class="why-card"><h4 data-i18n="why.3.title"></h4><p data-i18n="why.3.desc"></p></div>
-          <div class="why-card"><h4 data-i18n="why.4.title"></h4><p data-i18n="why.4.desc"></p></div>
+          <div class="why-card"><h3 data-i18n="why.1.title"></h3><p data-i18n="why.1.desc"></p></div>
+          <div class="why-card"><h3 data-i18n="why.2.title"></h3><p data-i18n="why.2.desc"></p></div>
+          <div class="why-card"><h3 data-i18n="why.3.title"></h3><p data-i18n="why.3.desc"></p></div>
+          <div class="why-card"><h3 data-i18n="why.4.title"></h3><p data-i18n="why.4.desc"></p></div>
         </div>
       </div>
     </section>
 
-    <section class="about-section" id="about">
+    <section class="dark-section" id="about">
       <div class="container">
         <p class="section-label" data-i18n="about.label"></p>
         <h2 class="section-title" data-i18n="about.title"></h2>
@@ -565,7 +796,7 @@
         </div>
         <div class="about-columns">
           <div>
-            <h4 data-i18n="notables.title"></h4>
+            <h3 data-i18n="notables.title"></h3>
             <ul class="check-list">
               <li data-i18n="notables.1"></li>
               <li data-i18n="notables.2"></li>
@@ -573,13 +804,16 @@
               <li data-i18n="notables.4"></li>
               <li data-i18n="notables.5"></li>
               <li data-i18n="notables.6"></li>
+              <li data-i18n="notables.7"></li>
+              <li data-i18n="notables.8"></li>
             </ul>
           </div>
           <div>
-            <h4 data-i18n="pub.title"></h4>
+            <h3 data-i18n="pub.title"></h3>
             <p data-i18n-html="pub.1"></p>
             <p data-i18n-html="pub.2"></p>
             <p data-i18n-html="pub.3"></p>
+            <p data-i18n-html="pub.4"></p>
             <p data-i18n-html="avail"></p>
           </div>
         </div>
@@ -588,37 +822,39 @@
 
     <section id="notes">
       <div class="container">
-        <div class="section-head">
-          <h2 class="section-title" data-i18n="notes.title"></h2>
-          <p class="section-lead" data-i18n="notes.lead"></p>
-        </div>
+        <h2 class="section-title" data-i18n="notes.title"></h2>
+        <p class="section-intro" data-i18n="notes.lead"></p>
         <div class="notes-grid">
           <a class="note-card" href="./notes.html">
-            <h4 data-i18n="notes.all.title"></h4>
+            <h3 data-i18n="notes.all.title"></h3>
             <p data-i18n="notes.all.desc"></p>
           </a>
           <a class="note-card" href="./notes.html?dossier=cours">
-            <h4 data-i18n="notes.courses.title"></h4>
+            <h3 data-i18n="notes.courses.title"></h3>
             <p data-i18n="notes.courses.desc"></p>
           </a>
           <a class="note-card" href="./notes.html?dossier=Livres%20de%20cours">
-            <h4 data-i18n="notes.books.title"></h4>
+            <h3 data-i18n="notes.books.title"></h3>
             <p data-i18n="notes.books.desc"></p>
           </a>
           <a class="note-card" href="./notes.html?dossier=informatique">
-            <h4 data-i18n="notes.tech.title"></h4>
+            <h3 data-i18n="notes.tech.title"></h3>
             <p data-i18n="notes.tech.desc"></p>
           </a>
           <a class="note-card" href="./notes.html?dossier=r%C3%A9flexions">
-            <h4 data-i18n="notes.essays.title"></h4>
+            <h3 data-i18n="notes.essays.title"></h3>
             <p data-i18n="notes.essays.desc"></p>
           </a>
+          <a class="note-card" href="./notes.html?dossier=kunereti">
+            <h3 data-i18n="notes.kr.title"></h3>
+            <p data-i18n="notes.kr.desc"></p>
+          </a>
           <a class="note-card" href="./notes.html?note=cours%2F_INDEX_cours.excalidraw.md">
-            <h4 data-i18n="notes.map.title"></h4>
+            <h3 data-i18n="notes.map.title"></h3>
             <p data-i18n="notes.map.desc"></p>
           </a>
           <a class="note-card" href="https://github.com/michaellaunay/NotesPubliques" rel="noopener">
-            <h4 data-i18n="notes.repo.title"></h4>
+            <h3 data-i18n="notes.repo.title"></h3>
             <p data-i18n="notes.repo.desc"></p>
           </a>
         </div>
@@ -643,7 +879,7 @@
           Michaël Launay<br>
           35 rue Léon Gambetta<br>
           59273 Fretin<br>
-	  France<br>
+          France<br>
           <a href="tel:+33616859112">+33 (0)6 16 85 91 12</a>
         </div>
         <div class="col-md-4">
@@ -664,128 +900,180 @@
   <script>
   const i18n = {
     fr: {
-      "nav.home": "Accueil",
-      "nav.services": "Services",
-      "nav.method": "Méthode",
+      "nav.services": "Prestation",
+      "nav.osia": "OSIA",
+      "nav.kunereti": "Kunereti",
       "nav.about": "À propos",
       "nav.notes": "Notes",
       "nav.contact": "Contact",
 
-      "hero.eyebrow": "GED · RAG · IA documentaire",
-      "hero.h1": "Transformez vos documents en <em>base de connaissances</em> augmentée.",
-      "hero.sub": "Vos archives, PDF, procédures et dossiers contiennent déjà une richesse immense. Logikascium vous aide à la structurer, la rechercher, la relier et l'exploiter avec des outils d'IA fiables, sourcés et maintenables.",
+      "hero.eyebrow": "Bases de connaissances · OSIA · Kunereti",
+      "hero.h1": "Toute la chaîne de la <em>connaissance</em>.",
+      "hero.sub": "Logikascium numérise vos fonds documentaires, les trie, les organise, les traduit et automatise leur tenue, puis les rend exploitables par l'IA, sécurise cet usage et vous aide à les diffuser. Le tout sur OSIA, un socle ouvert en Markdown et Git : votre base reste lisible sans nous, et sans IA.",
       "hero.cta1": "Parler de votre projet →",
-      "hero.cta2": "Découvrir nos services",
+      "hero.cta2": "Découvrir Kunereti",
 
-      "proof.1.strong": "20 ans",
-      "proof.1.span": "d'expérience en GED, portails collaboratifs et logiciels libres",
-      "proof.2.strong": "IA sourcée",
-      "proof.2.span": "réponses rattachées aux documents, pages, versions et droits",
-      "proof.3.strong": "Approche métier",
-      "proof.3.span": "audit, prototype, industrialisation et formation",
+      "proof.1.strong": "Depuis 2005",
+      "proof.1.span": "GED, portails collaboratifs et logiciels libres",
+      "proof.2.strong": "Formats ouverts",
+      "proof.2.span": "Markdown, YAML et Git : rien ne vous enferme",
+      "proof.3.strong": "IA encadrée",
+      "proof.3.span": "elle propose, le système vérifie, vous décidez",
 
-      "terminal.body": `<span class="muted">source:</span> PDF · scans · GED · intranet<br><span class="muted">extract:</span> OCR · tableaux · images<br><span class="muted">compile:</span> <span class="accent">Markdown + métadonnées</span><br><span class="muted">index:</span> plein texte + embeddings<br><span class="muted">answer:</span> <span class="accent">réponse sourcée</span>`,
+      "terminal.title": "chaine-de-la-connaissance.yaml",
+      "terminal.body": `<span class="ln"><span class="muted">numériser:</span> papier · scans · PDF · archives</span><span class="ln"><span class="muted">traiter:</span> curation · organisation · traduction · automatisation</span><span class="ln"><span class="muted">exploiter:</span> <span class="accent">recherche · agents · réponses sourcées</span></span><span class="ln"><span class="muted">sécuriser:</span> moindre privilège · SemGard</span><span class="ln"><span class="muted">diffuser:</span> notes publiques · Biblioteko</span><span class="ln"><span class="muted">apprendre:</span> boîte de Leitner + IA <span class="muted">#&nbsp;bientôt</span></span>`,
 
-      "mini.1.title": "Traçabilité",
-      "mini.1.desc": "Chaque réponse revient à ses sources.",
-      "mini.2.title": "Incrémental",
-      "mini.2.desc": "On enrichit sans tout recalculer.",
-      "mini.3.title": "Gouvernance",
-      "mini.3.desc": "Droits, versions et validation.",
-      "mini.4.title": "Maintenance",
-      "mini.4.desc": "Architecture claire et auditable.",
+      "mini.1.title": "Lisible",
+      "mini.1.desc": "Vos fichiers s'ouvrent sans nous.",
+      "mini.2.title": "Traçable",
+      "mini.2.desc": "Chaque contenu garde sa source.",
+      "mini.3.title": "Réversible",
+      "mini.3.desc": "Git annule une mauvaise modification.",
+      "mini.4.title": "Indépendant",
+      "mini.4.desc": "On change de modèle d'IA sans tout refaire.",
 
       "problem.label": "Le constat",
       "problem.title": "La connaissance est là. Elle n'est simplement pas exploitable.",
-      "problem.intro": "Dans beaucoup d'organisations, l'information critique existe déjà, mais elle reste dispersée, mal indexée ou enfermée dans des formats peu utilisables.",
-      "problem.1.title": "Documents dispersés",
-      "problem.1.desc": "Répertoires partagés, GED anciennes, exports, intranets et portails difficiles à maintenir.",
-      "problem.2.title": "Recherche insuffisante",
-      "problem.2.desc": "Les moteurs classiques retrouvent des mots, mais ne comprennent pas toujours l'intention métier.",
-      "problem.3.title": "PDF et scans dormants",
-      "problem.3.desc": "Des années d'archives numérisées, parfois lisibles, rarement structurées ou correctement exploitées.",
-      "problem.4.title": "Savoir non capitalisé",
-      "problem.4.desc": "Les connaissances clés restent dans les têtes, les mails ou les dossiers, sans transmission durable.",
+      "problem.intro": "Dans beaucoup d'organisations, le savoir critique existe déjà. Mais il dort dans le papier, se disperse entre les outils, ou reste dans des formats qu'aucune IA ne lit correctement.",
+      "problem.1.title": "Savoir resté sur papier",
+      "problem.1.desc": "Archives, livres, revues, dossiers : des années de contenu que personne ne peut rechercher ni citer.",
+      "problem.2.title": "Documents dispersés",
+      "problem.2.desc": "Répertoires partagés, GED anciennes, intranets, messageries : chacun a sa copie, et personne ne sait laquelle fait foi.",
+      "problem.3.title": "IA posée sur du désordre",
+      "problem.3.desc": "Un assistant branché sur un fonds mal tenu répond vite, et mal. La qualité se joue avant le modèle, dans la structure des données.",
+      "problem.4.title": "Savoir non transmis",
+      "problem.4.desc": "Ce qui n'est ni écrit, ni partagé, ni appris part avec les personnes qui le détiennent.",
 
-      "approach.label": "Notre approche",
-      "approach.title": `Un <span class="term-tooltip" tabindex="0" data-tooltip="Le RAG (Retrieval-Augmented Generation) permet à une IA de répondre en allant d'abord chercher les bonnes informations dans vos documents, puis en s'en servant pour formuler une réponse fiable et sourcée.">RAG</span> efficace commence avant les <span class="term-tooltip" tabindex="0" data-tooltip="Les embeddings sont des représentations numériques d'un texte ou d'un document, qui permettent de comparer leur proximité sémantique dans un espace vectoriel.">embeddings</span>.`,
-      "approach.intro": `Nous construisons une couche documentaire propre, lisible, sourcée et versionnée avant de la connecter à la recherche sémantique et aux <span class="term-tooltip" tabindex="0" data-tooltip="Un LLM (Large Language Model) est une IA entraînée sur de très grands volumes de textes, capable de comprendre une demande et de générer une réponse en langage naturel.">LLM</span>.`,
+      "services.label": "Prestation",
+      "services.title": "Une prestation complète, maillon par maillon.",
+      "services.intro": "Nous prenons en charge toute la chaîne, ou seulement le maillon qui vous manque. Chaque étape livre un résultat utilisable seul, dans des formats ouverts que vous conservez.",
+      "services.cta": "Parler de votre projet",
 
-      "pipeline.caption": "Pipeline documentaire",
-      "pipeline.code": `<span class="highlight">Documents sources</span><br><span class="arrow">→</span> extraction propre : OCR, PDF, DOCX, images<br><span class="arrow">→</span> conversion en <span class="highlight">Markdown structuré</span><br><span class="arrow">→</span> métadonnées, entités, résumés, liens<br><span class="arrow">→</span> chunks hiérarchiques et index techniques<br><span class="arrow">→</span> recherche hybride : plein texte + sémantique<br><span class="arrow">→</span> <span class="highlight">assistant IA sourcé</span>`,
-      "pipeline.explainer": "Chaque réponse peut être rattachée à ses sources : document, page, section, date, auteur, version et droits d'accès. L'objectif n'est pas de produire une boîte noire, mais une base de connaissances fiable, gouvernée et maintenable.",
-      "pipeline.check.1": "OCR, extraction de tableaux, images et schémas",
-      "pipeline.check.2": "Markdown structuré et métadonnées métier",
-      "pipeline.check.3": "Recherche hybride : BM25, embeddings, filtres et reranking",
-      "pipeline.check.4": "Réponses sourcées et contrôle des droits d'accès",
-      "pipeline.check.5": "Enrichissement incrémental sans retraiter tout le corpus",
+      "chain.1.title": "Numériser",
+      "chain.1.lead": "Faire entrer le papier et les fonds existants.",
+      "chain.1.desc": "Archives papier, livres et revues, PDF scannés, fichiers bureautiques, exports de GED et d'intranets. La reconnaissance de texte se fait en local quand la confidentialité l'exige ; les originaux sont conservés et chaque page garde sa provenance. Nous pouvons aussi accompagner la numérisation elle-même, avec des scanners professionnels.",
+      "chain.1.link": "Cours : du PDF scanné au corpus exploitable",
+      "chain.2.title": "Traiter",
+      "chain.2.lead": "Curation, organisation, traduction, automatisation.",
+      "chain.2.desc": "Tri et dédoublonnage, conversion en Markdown structuré, métadonnées, liens entre contenus, traduction. Les tâches répétitives sont confiées à des agents d'IA, et le système valide chacune de leurs écritures avant qu'elle n'entre dans la base.",
+      "chain.2.link": "Voir le socle",
+      "chain.3.title": "Exploiter par l'IA",
+      "chain.3.lead": "Interroger la base, et la faire travailler.",
+      "chain.3.desc": "Recherche dans plusieurs milliers de notes, réponses rattachées à leurs sources, agents qui classent, résument et tiennent la base à jour. Le RAG, qui va chercher les bons passages avant de répondre, y est un outil parmi d'autres, pas une fin en soi.",
+      "chain.3.link": "Livre de cours : RAG",
+      "chain.4.title": "Sécuriser",
+      "chain.4.lead": "Un système qui agit doit être borné.",
+      "chain.4.desc": "Séparation des données et des instructions, moindre privilège, validation des écritures, historique Git : le modèle d'IA n'est jamais la frontière de sécurité. Nous y ajoutons SemGard, notre filtre sémantique contre l'injection de prompt, comme couche de détection supplémentaire.",
+      "chain.4.status": "Expérimental · v0.1",
+      "chain.4.link": "Dépôt GitHub",
+      "chain.5.title": "Diffuser",
+      "chain.5.lead": "Publier ce qui doit l'être, et seulement cela.",
+      "chain.5.desc": "Chaque document porte dans son en-tête ce qui autorise sa publication. Vos contenus peuvent alimenter un site, un lecteur en ligne ou, pour aller jusqu'au bout, Biblioteko : notre projet de bibliothèque numérique libre et décentralisée, où les œuvres sont conservées dans des dépôts Git plutôt que dans une base de données.",
+      "chain.5.status": "En développement",
+      "chain.5.link": "Dépôt GitHub",
+      "chain.6.title": "Apprendre",
+      "chain.6.lead": "Retrouver une note ne dispense pas de savoir.",
+      "chain.6.desc": "Nous préparons un apprentissage assisté par ordinateur qui met en pratique notre cours Apprendre : questions de récupération tirées de vos contenus, révisions espacées dans une boîte de Leitner automatisée par l'IA.",
+      "chain.6.status": "Prochainement",
+      "chain.6.link": "Lire le cours Apprendre",
 
-      "services.label": "Services",
-      "services.title": "Ce que nous construisons avec vous.",
-      "services.intro": "Logikascium intervient sur toute la chaîne : reprise documentaire, structuration, GED, recherche sémantique, RAG et assistants IA métier.",
-      "svc.1.title": "Numérisation & reprise de l'existant",
-      "svc.1.desc": "Archives papier, PDF scannés, fichiers bureautiques, exports GED, CMS et intranets. Nous pouvons accompagner les projets de numérisation avec scanners professionnels.",
-      "svc.2.title": "OCR & Markdown structuré",
-      "svc.2.desc": "Extraction, nettoyage et structuration du contenu : texte, images, tableaux, métadonnées, résumés et liens. Vos documents deviennent exploitables par l'IA.",
-      "svc.3.title": "GED & workflows documentaires",
-      "svc.3.desc": "Création ou modernisation de portails documentaires : validation, publication, versions, rôles, droits d'accès et traçabilité.",
-      "svc.4.title": "Recherche sémantique",
-      "svc.4.desc": "Architectures hybrides combinant recherche plein texte, embeddings, métadonnées et graphe de connaissances pour retrouver le sens, pas seulement les mots.",
-      "svc.5.title": "Assistant IA documentaire",
-      "svc.5.desc": "Un assistant ancré dans vos sources internes, capable de répondre en langage naturel avec citations, contrôles d'accès et garde-fous.",
-      "svc.6.title": "Second cerveau & Obsidian",
-      "svc.6.desc": "Vaults Obsidian augmentés par IA : notes interliées, synthèses, index, questions de remémoration et capitalisation durable des connaissances.",
-
-      "usecase.label": "Cas d'usage",
-      "usecase.title": "Des projets concrets, à forte valeur métier.",
-      "uc.1.title": "Moderniser une GED existante",
-      "uc.1.desc": "La recherche est limitée, les documents sont mal classés ou les utilisateurs ne trouvent plus l'information. Nous enrichissons votre base avec OCR, recherche sémantique, résumés automatiques et assistant documentaire.",
-      "uc.2.title": "Créer une base de connaissances interne",
-      "uc.2.desc": "Capitaliser procédures, méthodes, retours d'expérience, documentation technique et dossiers qualité dans une base structurée et interrogeable.",
-      "uc.3.title": "Exploiter des archives papier ou PDF scannés",
-      "uc.3.desc": "Mettre en place une chaîne complète : scan, OCR, structuration, classement, résumé, indexation et recherche sémantique.",
-      "uc.4.title": "Construire un assistant documentaire métier",
-      "uc.4.desc": "Permettre aux équipes de poser des questions en langage naturel sur leurs documents internes, avec des réponses sourcées et vérifiables.",
-      "uc.5.title": "Mettre en place un second cerveau d'équipe",
-      "uc.5.desc": "Pour les équipes projet, chercheurs, formateurs ou directions métiers : un espace de connaissance cumulatif, éditable et partagé.",
+      "osia.label": "Le socle",
+      "osia.title": "OSIA : une base de connaissances qui vous appartient.",
+      "osia.intro": "OSIA (Obsidian Operating System IA) est la méthode que nous avons conçue, que nous enseignons et sur laquelle reposent nos bases de connaissances : un système d'information tenu dans de simples fichiers texte, où des personnes et des agents d'IA travaillent sur les mêmes documents.",
+      "stack.caption": "Les six couches d'OSIA",
+      "stack.6.name": "Intelligence",
+      "stack.6.what": "modèle de langage (LLM) : raisonnement, génération",
+      "stack.5.name": "Comportement",
+      "stack.5.what": "agents, procédures (skills), processus (pipelines)",
+      "stack.4.name": "Accès et contexte",
+      "stack.4.what": "outils donnés à l'IA (harness), recherche, RAG",
+      "stack.3.name": "Modèle de données",
+      "stack.3.what": "en-têtes YAML : types, relations, états",
+      "stack.2.name": "Interface",
+      "stack.2.what": "Obsidian : lecture, écriture, vues",
+      "stack.1.name": "Persistance",
+      "stack.1.what": "fichiers Markdown, historique Git",
+      "stack.note": "On construit en partant du bas : les données d'abord, l'intelligence en dernier.",
+      "osia.explainer": "La valeur d'une base OSIA ne réside dans aucun logiciel : elle est dans vos fichiers, leurs métadonnées, leurs liens et leur historique. Le reste se remplace.",
+      "osia.check.1": "Des fichiers Markdown lisibles sans logiciel particulier",
+      "osia.check.2": "L'en-tête de chaque fichier est à la fois sa fiche descriptive et sa mémoire d'état",
+      "osia.check.3": "Tout continue de fonctionner sans IA, et sans Obsidian",
+      "osia.check.4": "On change de modèle d'IA sans reconstruire le système",
+      "osia.check.5": "L'IA propose, le système vérifie, l'humain décide",
+      "osia.course": "Le cours complet est public : trente chapitres, trois annexes et une implémentation de référence testée, sous licence CC BY-SA 4.0.",
+      "osia.course.link": "Lire le cours OSIA",
 
       "method.label": "Méthode",
       "method.title": "Une démarche progressive, vérifiable et durable.",
       "method.intro": "Nous validons la valeur sur un périmètre limité avant d'industrialiser. Chaque étape produit un résultat concret et réutilisable.",
-      "step.1.title": "Audit documentaire",
-      "step.1.desc": "Analyse de vos documents, outils existants, usages, droits d'accès et contraintes métier.",
-      "step.2.title": "Prototype rapide",
-      "step.2.desc": "Démonstrateur sur un corpus limité pour mesurer la valeur et ajuster l'approche.",
-      "step.3.title": "Structuration",
-      "step.3.desc": "Conversion, OCR, Markdown, métadonnées, normalisation et préparation des index.",
-      "step.4.title": "Moteur de connaissance",
-      "step.4.desc": "Recherche hybride, embeddings, filtres, reranking, droits d'accès et assistant IA.",
-      "step.5.title": "Industrialisation",
-      "step.5.desc": "Ingestion automatisée, enrichissement incrémental, supervision et maintenance.",
-      "step.6.title": "Formation",
-      "step.6.desc": "Transmission aux équipes pour garantir l'appropriation et l'évolution du système.",
+      "step.1.title": "Audit du fonds",
+      "step.1.desc": "Inventaire de vos documents, de vos outils, des usages, des droits d'accès et des contraintes de confidentialité.",
+      "step.2.title": "Prototype",
+      "step.2.desc": "Démonstrateur sur un corpus limité, pour mesurer la valeur avant d'engager le reste.",
+      "step.3.title": "Numérisation et structuration",
+      "step.3.desc": "OCR, conversion en Markdown, schéma de métadonnées, liens : la base prend forme.",
+      "step.4.title": "Mise en exploitation",
+      "step.4.desc": "Recherche, agents et automatisations branchés sur la base, avec leurs règles et leurs permissions.",
+      "step.5.title": "Sécurisation et diffusion",
+      "step.5.desc": "Contrôle des écritures, filtrage des contenus entrants, publication de ce qui doit être partagé.",
+      "step.6.title": "Transmission",
+      "step.6.desc": "Formation de vos équipes : le système est documenté, et vous savez le faire évoluer sans nous.",
 
       "tech.label": "Technologies",
       "tech.intro": "Nous adaptons la solution à vos contraintes de confidentialité, de coût, de performance et de maintenabilité.",
-      "tag.1": "Modèles locaux", "tag.2": "Open source", "tag.3": "Docker / Kubernetes",
-      "tag.4": "Bases vectorielles", "tag.5": "Elasticsearch / OpenSearch", "tag.6": "PostgreSQL",
-      "tag.7": "Plone", "tag.8": "Obsidian", "tag.9": "OCR multimodal", "tag.10": "Solutions souveraines",
+      "tag.1": "Markdown + YAML", "tag.2": "Git", "tag.3": "Obsidian",
+      "tag.4": "Python", "tag.5": "Agents IA", "tag.6": "Modèles locaux",
+      "tag.7": "OCR multimodal", "tag.8": "Open source", "tag.9": "Plone", "tag.10": "Solutions souveraines",
+
+      "kr.label": "Notre produit · en cours de développement",
+      "kr.title": "Kunereti : décider ensemble, sans serveur central.",
+      "kr.intro": "Kunereti applique le socle d'OSIA à une communauté qui délibère. De Nova-Ideo et KuneAgi, les logiciels libres d'innovation et de démocratie participatives dont il est issu, il garde tout ce qui concerne les personnes : petits groupes, itérations courtes, amendements, jugement majoritaire. Il remplace tout ce qui concerne la machine : plus de plateforme à héberger, plus de base de données, plus d'administrateur à croire sur parole.",
+      "kr.1.title": "Une communauté est un dépôt",
+      "kr.1.desc": "On la rejoint en scannant un QR code. Chaque groupe de travail a son propre dépôt Git, et les brouillons restent dans la copie de chacun.",
+      "kr.2.title": "Tout est un fichier signé",
+      "kr.2.desc": "Contributions, amendements, bulletins et messages sont des fichiers Markdown signés par leur auteur. L'état de chacun est écrit dans son en-tête.",
+      "kr.3.title": "Des votes que chacun recalcule",
+      "kr.3.desc": "Jugement majoritaire à sept mentions, liste des votants figée à l'ouverture, dépouillement que tout membre peut refaire sur son propre appareil.",
+      "kr.4.title": "L'IA range, les humains décident",
+      "kr.4.desc": "Des agents rapprochent les idées, résument les discussions et traduisent. Ils ne votent pas, et ne signent jamais à votre place ; tout fonctionne aussi sans eux.",
+      "kr.file.code": `<span class="k">---</span>
+<span class="k">type:</span> amendment
+<span class="k">title:</span> "Décaler d'un jour"
+<span class="k">intention:</span> "Éviter les lundis."
+<span class="k">justification:</span> &gt;
+  Le lundi tombe souvent sur un
+  retour de congé.
+<span class="k">workflows:</span>
+  <span class="k">amendment:</span> {state: <span class="highlight">to_vote</span>}
+<span class="k">signature:</span>
+  <span class="k">signer:</span> "member:01KA9P…"
+  <span class="k">value:</span> <span class="highlight">"ed25519:…"</span>
+<span class="k">---</span>
+Explication libre de l'amendement,
+lisible sans outil.`,
+      "kr.file.note": "Un amendement tel qu'il sera enregistré : l'en-tête pour les programmes, le texte pour les personnes.",
+      "kr.status.title": "Où en est le projet",
+      "kr.status.desc": "La conception détaillée, l'analyse en 51 scénarios d'usage et quatorze croquis d'écrans sont publiés dans nos notes. Le développement est en cours : aucune version n'est encore disponible. Comme Nova-Ideo et KuneAgi, Kunereti sera un logiciel libre, sous licence AGPL v3. D'ici là, KuneAgi reste en service et continue d'être maintenu.",
+      "kr.link.1": "Lire la présentation",
+      "kr.link.2": "Conception détaillée",
+      "kr.link.3": "Analyse et scénarios",
+      "kr.name": "Le nom vient de l'espéranto : <em lang=\"eo\">kune</em>, « ensemble », et <em lang=\"eo\">reti</em>, formé sur <em lang=\"eo\">reto</em>, le réseau. S'organiser librement, décider à égalité.",
 
       "why.label": "Pourquoi Logikascium",
       "why.title": "Une expertise longue, une vision réaliste de l'IA.",
       "why.intro": "Notre savoir-faire ne vient pas d'une mode récente : il s'appuie sur une expérience ancienne des portails collaboratifs, de la GED, des workflows et des logiciels libres.",
       "why.1.title": "Expérience documentaire",
       "why.1.desc": "Depuis 2005 : GED, intranets, extranets, portails collaboratifs, Plone et workflows métiers.",
-      "why.2.title": "Culture open source",
-      "why.2.desc": "Architectures compréhensibles, auditables et maintenables. Pas de dépendance imposée sans justification.",
-      "why.3.title": "Orientation métier",
-      "why.3.desc": "Nous partons de vos processus, de vos utilisateurs et de vos contraintes avant de choisir les outils.",
+      "why.2.title": "Culture du logiciel libre",
+      "why.2.desc": "OSIA, SemGard et Biblioteko sont publiés sous licences libres ; Kunereti le sera aussi. Rien de ce que nous livrons ne vous enferme.",
+      "why.3.title": "Éprouvé sur notre propre fonds",
+      "why.3.desc": "Nos cours et nos notes publiques sont tenus et publiés avec OSIA : la méthode est rodée sur notre fonds avant de l'être sur le vôtre.",
       "why.4.title": "IA encadrée",
-      "why.4.desc": "Des réponses sourcées, vérifiables, traçables et gouvernées, adaptées à vos règles internes.",
+      "why.4.desc": "Des réponses sourcées, des agents bornés, des décisions qui restent humaines.",
 
       "about.label": "Qui sommes-nous",
-      "about.title": "Logikascium, architecture logicielle et IA documentaire.",
-      "about.intro": "Logikascium est une EURL fondée en 2023 qui prolonge le métier d'<a href=\"./PresentationEcreall.pdf\">Ecréall</a> (2005-2023) en l'augmentant par l'IA. Basée dans la métropole lilloise, elle est spécialisée dans l'architecture logicielle, les projets documentaires complexes et l'intégration raisonnée de l'IA.",
+      "about.title": "Logikascium, architecture logicielle et ingénierie de la connaissance.",
+      "about.intro": "Logikascium est une EURL fondée en 2023 qui prolonge le métier d'<a href=\"./PresentationEcreall.pdf\">Ecréall</a> (2005-2023) en l'augmentant par l'IA. Basée dans la métropole lilloise, elle conçoit des bases de connaissances, développe Kunereti et maintient KuneAgi, issu de Nova-Ideo dont elle a repris le code en 2024.",
       "about.role": "Architecte logiciel senior · Fondateur",
       "about.bio1": "Plus de 25 ans d'expérience dans la conception et la réalisation de systèmes logiciels complexes, de l'expression du besoin jusqu'à la mise en production. Expertise en pilotage agile, dématérialisation de processus métier collaboratifs et traitement automatisé de documents numérisés.",
       "about.bio2": "Ingénieur productif, je reste au contact des réalités techniques du terrain : administration GNU/Linux, développement Python, architectures web, intégration et accompagnement des équipes.",
@@ -803,9 +1091,11 @@
       "notables.4": "Encadrement d'une thèse CIFRE",
       "notables.5": "Contributions à des projets open source",
       "notables.6": "Pipelines OCR et IA documentaire multimodaux (Biblioteko)",
+      "notables.7": "OSIA : cours en trente chapitres et implémentation de référence, sous licence libre",
+      "notables.8": "SemGard, filtre sémantique contre l'injection de prompt (v0.1 expérimentale)",
 
       "notes.title": "Notes publiques",
-      "notes.lead": "Mon second cerveau, ouvert. Cours, fiches techniques et réflexions sont rédigés en Markdown dans Obsidian, versionnés dans Git, puis publiés tels quels : ce que vous lisez est la note elle-même, pas une adaptation pour le web.",
+      "notes.lead": "Mon second cerveau, ouvert, et OSIA en production. Cours, fiches techniques et réflexions sont rédigés en Markdown dans Obsidian, versionnés dans Git, puis publiés tels quels après contrôle de leurs métadonnées : ce que vous lisez est la note elle-même, pas une adaptation pour le web.",
       "notes.all.title": "Parcourir toutes les notes",
       "notes.all.desc": "Index complet, recherche instantanée et navigation par liens entre notes.",
       "notes.courses.title": "Cours",
@@ -816,6 +1106,8 @@
       "notes.tech.desc": "Procédures, retours d'expérience et notes de veille sur l'écosystème logiciel.",
       "notes.essays.title": "Réflexions",
       "notes.essays.desc": "Textes plus libres sur l'informatique, la connaissance et leurs effets.",
+      "notes.kr.title": "Kunereti",
+      "notes.kr.desc": "Présentation, conception détaillée, analyse en 51 scénarios et croquis d'écrans du projet.",
       "notes.map.title": "Cartes et schémas",
       "notes.map.desc": "Index thématiques et dessins Excalidraw rendus directement dans le navigateur.",
       "notes.repo.title": "Le dépôt Git",
@@ -824,10 +1116,11 @@
       "pub.1": "Cours dispensés depuis 2019, avec supports disponibles sur <a href=\"https://github.com/michaellaunay/NotesPubliques/tree/master/cours\">GitHub</a>.",
       "pub.2": "Article publié dans Linux Pratique sur <a href=\"https://connect.ed-diamond.com/Linux-Pratique/lp-101/organiser-un-brainstorming-geant-l-innovation-participative-en-pratique-avec-nova-ideo\">Nova-Ideo</a>.",
       "pub.3": "Article LinkedIn sur le <a href=\"https://www.linkedin.com/pulse/ayez-un-deuxi%2525C3%2525A8me-cerveau-num%2525C3%2525A9rique-michael-launay\">deuxième cerveau numérique</a>.",
+      "pub.4": "Texte de présentation de <a href=\"./notes.html?note=kunereti%2Fpr%C3%A9sentation_kunereti.md\">Kunereti</a>, l'innovation participative répartie (2026).",
       "avail": "<strong style=\"color:#eef2f7;\">Disponibilité :</strong> missions en télétravail ou sur site, conseil et accompagnement, depuis la métropole lilloise.",
 
       "cta.title": "Votre connaissance existe déjà.<br>Rendons-la exploitable.",
-      "cta.sub": "Contactez-nous pour étudier votre corpus documentaire, identifier les cas d'usage prioritaires et construire un premier prototype.",
+      "cta.sub": "Contactez-nous pour étudier votre fonds, choisir les maillons utiles et construire un premier prototype, ou pour suivre le développement de Kunereti.",
       "cta.email": "Écrire un courriel",
       "cta.linkedin": "Contacter sur LinkedIn",
 
@@ -837,133 +1130,185 @@
 
       "cv.file": "./CV.pdf",
       "html.lang": "fr",
-      "meta.desc": "Logikascium transforme vos documents, archives et GED en bases de connaissances augmentées par l'IA : OCR, Markdown, RAG, recherche sémantique, workflows et assistants documentaires sourcés.",
-      "title": "Logikascium – Bases de connaissances augmentées par l'IA"
+      "meta.desc": "Logikascium prend en charge toute la chaîne de la connaissance : numérisation, curation, organisation, traduction, automatisation, exploitation par l'IA, sécurisation et diffusion, sur le socle ouvert OSIA (Markdown, Git). En développement : Kunereti, la délibération répartie sans serveur central.",
+      "title": "Logikascium – Chaîne de la connaissance, OSIA et Kunereti"
     },
 
     en: {
-      "nav.home": "Home",
       "nav.services": "Services",
-      "nav.method": "Method",
+      "nav.osia": "OSIA",
+      "nav.kunereti": "Kunereti",
       "nav.about": "About",
       "nav.notes": "Notes",
       "nav.contact": "Contact",
 
-      "hero.eyebrow": "DMS · RAG · AI-powered documents",
-      "hero.h1": "Transform your documents into an AI-augmented <em>knowledge base</em>.",
-      "hero.sub": "Your archives, PDFs, procedures and files already hold immense value. Logikascium helps you structure, search, connect and exploit them with reliable, sourced and maintainable AI tools.",
+      "hero.eyebrow": "Knowledge bases · OSIA · Kunereti",
+      "hero.h1": "The whole <em>knowledge</em> chain.",
+      "hero.sub": "Logikascium digitises your document collections, sorts, organises and translates them, automates their upkeep, then makes them usable by AI, secures that use and helps you share them. All of it on OSIA, an open foundation of Markdown and Git: your knowledge base stays readable without us, and without AI.",
       "hero.cta1": "Discuss your project →",
-      "hero.cta2": "Explore our services",
+      "hero.cta2": "Discover Kunereti",
 
-      "proof.1.strong": "20 years",
-      "proof.1.span": "of experience in DMS, collaborative portals and open source",
-      "proof.2.strong": "Sourced AI",
-      "proof.2.span": "answers tied back to documents, pages, versions and access rights",
-      "proof.3.strong": "Business-first",
-      "proof.3.span": "audit, prototype, industrialisation and training",
+      "proof.1.strong": "Since 2005",
+      "proof.1.span": "DMS, collaborative portals and open source",
+      "proof.2.strong": "Open formats",
+      "proof.2.span": "Markdown, YAML and Git: nothing locks you in",
+      "proof.3.strong": "Governed AI",
+      "proof.3.span": "it proposes, the system checks, you decide",
 
-      "terminal.body": `<span class="muted">source:</span> PDF · scans · DMS · intranet<br><span class="muted">extract:</span> OCR · tables · images<br><span class="muted">compile:</span> <span class="accent">Markdown + metadata</span><br><span class="muted">index:</span> full-text + embeddings<br><span class="muted">answer:</span> <span class="accent">sourced response</span>`,
+      "terminal.title": "knowledge-chain.yaml",
+      "terminal.body": `<span class="ln"><span class="muted">digitise:</span> paper · scans · PDF · archives</span><span class="ln"><span class="muted">process:</span> curation · organisation · translation · automation</span><span class="ln"><span class="muted">use:</span> <span class="accent">search · agents · sourced answers</span></span><span class="ln"><span class="muted">secure:</span> least privilege · SemGard</span><span class="ln"><span class="muted">share:</span> public notes · Biblioteko</span><span class="ln"><span class="muted">learn:</span> Leitner box + AI <span class="muted">#&nbsp;soon</span></span>`,
 
-      "mini.1.title": "Traceability",
-      "mini.1.desc": "Every answer links back to its source.",
-      "mini.2.title": "Incremental",
-      "mini.2.desc": "Enrich without reprocessing everything.",
-      "mini.3.title": "Governance",
-      "mini.3.desc": "Rights, versions and validation.",
-      "mini.4.title": "Maintainable",
-      "mini.4.desc": "Clear, auditable architecture.",
+      "mini.1.title": "Readable",
+      "mini.1.desc": "Your files open without us.",
+      "mini.2.title": "Traceable",
+      "mini.2.desc": "Every item keeps its source.",
+      "mini.3.title": "Reversible",
+      "mini.3.desc": "Git undoes a bad change.",
+      "mini.4.title": "Independent",
+      "mini.4.desc": "Swap AI models without starting over.",
 
       "problem.label": "The problem",
       "problem.title": "The knowledge is there. It's just not accessible.",
-      "problem.intro": "In most organisations, critical information already exists — but it remains scattered, poorly indexed or locked in unusable formats.",
-      "problem.1.title": "Scattered documents",
-      "problem.1.desc": "Shared folders, legacy DMS, exports, intranets and portals that are hard to maintain.",
-      "problem.2.title": "Poor search",
-      "problem.2.desc": "Classic search engines find words, but rarely understand business intent.",
-      "problem.3.title": "Dormant PDFs & scans",
-      "problem.3.desc": "Years of digitised archives — sometimes readable, rarely structured or properly exploited.",
-      "problem.4.title": "Uncapitalised knowledge",
-      "problem.4.desc": "Key knowledge stays in people's heads, emails or folders, with no lasting transfer.",
-
-      "approach.label": "Our approach",
-      "approach.title": `Effective <span class="term-tooltip" tabindex="0" data-tooltip="RAG (Retrieval-Augmented Generation) lets an AI answer questions by first fetching the right information from your documents, then using it to craft a reliable, sourced response.">RAG</span> starts before the <span class="term-tooltip" tabindex="0" data-tooltip="Embeddings are numerical representations of text or documents that allow comparing their semantic closeness in a vector space.">embeddings</span>.`,
-      "approach.intro": `We build a clean, readable, sourced and versioned document layer before connecting it to semantic search and <span class="term-tooltip" tabindex="0" data-tooltip="An LLM (Large Language Model) is an AI trained on vast amounts of text, capable of understanding requests and generating natural-language answers.">LLMs</span>.`,
-
-      "pipeline.caption": "Document pipeline",
-      "pipeline.code": `<span class="highlight">Source documents</span><br><span class="arrow">→</span> clean extraction: OCR, PDF, DOCX, images<br><span class="arrow">→</span> conversion to <span class="highlight">structured Markdown</span><br><span class="arrow">→</span> metadata, entities, summaries, links<br><span class="arrow">→</span> hierarchical chunks and technical indexes<br><span class="arrow">→</span> hybrid search: full-text + semantic<br><span class="arrow">→</span> <span class="highlight">sourced AI assistant</span>`,
-      "pipeline.explainer": "Every answer can be traced back to its source: document, page, section, date, author, version and access rights. The goal is not a black box, but a reliable, governed and maintainable knowledge base.",
-      "pipeline.check.1": "OCR, table, image and diagram extraction",
-      "pipeline.check.2": "Structured Markdown with business metadata",
-      "pipeline.check.3": "Hybrid search: BM25, embeddings, filters and reranking",
-      "pipeline.check.4": "Sourced answers with access control",
-      "pipeline.check.5": "Incremental enrichment without reprocessing the full corpus",
+      "problem.intro": "In many organisations the critical knowledge already exists. But it sleeps on paper, is scattered across tools, or sits in formats no AI reads properly.",
+      "problem.1.title": "Knowledge still on paper",
+      "problem.1.desc": "Archives, books, journals, files: years of content nobody can search or cite.",
+      "problem.2.title": "Scattered documents",
+      "problem.2.desc": "Shared folders, legacy DMS, intranets, mailboxes: everyone has a copy, and nobody knows which one is authoritative.",
+      "problem.3.title": "AI on top of disorder",
+      "problem.3.desc": "An assistant plugged into a poorly kept collection answers fast, and wrong. Quality is decided before the model, in how the data is structured.",
+      "problem.4.title": "Knowledge not passed on",
+      "problem.4.desc": "What is not written down, shared and learned leaves with the people who hold it.",
 
       "services.label": "Services",
-      "services.title": "What we build with you.",
-      "services.intro": "Logikascium covers the full chain: document recovery, structuring, DMS, semantic search, RAG and business AI assistants.",
-      "svc.1.title": "Digitisation & legacy recovery",
-      "svc.1.desc": "Paper archives, scanned PDFs, office files, DMS exports, CMS and intranets. We can support scanning projects with professional scanners.",
-      "svc.2.title": "OCR & structured Markdown",
-      "svc.2.desc": "Extraction, cleaning and structuring of content: text, images, tables, metadata, summaries and links. Your documents become AI-ready.",
-      "svc.3.title": "DMS & document workflows",
-      "svc.3.desc": "Creation or modernisation of document portals: validation, publication, versioning, roles, access rights and traceability.",
-      "svc.4.title": "Semantic search",
-      "svc.4.desc": "Hybrid architectures combining full-text search, embeddings, metadata and knowledge graphs — finding meaning, not just words.",
-      "svc.5.title": "AI document assistant",
-      "svc.5.desc": "An assistant grounded in your internal sources, answering in natural language with citations, access controls and guardrails.",
-      "svc.6.title": "Second brain & Obsidian",
-      "svc.6.desc": "AI-augmented Obsidian vaults: interlinked notes, summaries, indexes, spaced repetition and durable knowledge capitalisation.",
+      "services.title": "A complete service, link by link.",
+      "services.intro": "We take on the whole chain, or only the link you are missing. Each step delivers a result that stands on its own, in open formats you keep.",
+      "services.cta": "Discuss your project",
 
-      "usecase.label": "Use cases",
-      "usecase.title": "Real projects, high business value.",
-      "uc.1.title": "Modernise an existing DMS",
-      "uc.1.desc": "Search is limited, documents are poorly classified or users can no longer find information. We enrich your base with OCR, semantic search, automatic summaries and a document assistant.",
-      "uc.2.title": "Create an internal knowledge base",
-      "uc.2.desc": "Capitalise procedures, methods, feedback, technical documentation and quality files in a structured, queryable base.",
-      "uc.3.title": "Exploit paper archives or scanned PDFs",
-      "uc.3.desc": "Set up a complete pipeline: scanning, OCR, structuring, classification, summarisation, indexing and semantic search.",
-      "uc.4.title": "Build a business document assistant",
-      "uc.4.desc": "Allow teams to ask natural-language questions on internal documents, with sourced and verifiable answers.",
-      "uc.5.title": "Deploy a team second brain",
-      "uc.5.desc": "For project teams, researchers, trainers or business managers: a cumulative, editable and shared knowledge space.",
+      "chain.1.title": "Digitise",
+      "chain.1.lead": "Bring in paper and existing collections.",
+      "chain.1.desc": "Paper archives, books and journals, scanned PDFs, office files, DMS and intranet exports. Text recognition runs locally when confidentiality requires it; originals are preserved and every page keeps its provenance. We can also support the scanning itself, with professional scanners.",
+      "chain.1.link": "Course: from scanned PDF to usable corpus (in French)",
+      "chain.2.title": "Process",
+      "chain.2.lead": "Curation, organisation, translation, automation.",
+      "chain.2.desc": "Sorting and de-duplication, conversion to structured Markdown, metadata, links between items, translation. Repetitive tasks go to AI agents, and the system validates each of their writes before it enters the knowledge base.",
+      "chain.2.link": "See the foundation",
+      "chain.3.title": "Put AI to work",
+      "chain.3.lead": "Query the knowledge base, and make it work for you.",
+      "chain.3.desc": "Search across several thousand notes, answers tied to their sources, agents that classify, summarise and keep the base up to date. RAG, which fetches the right passages before answering, is one tool among others here, not an end in itself.",
+      "chain.3.link": "Course book: RAG (in French)",
+      "chain.4.title": "Secure",
+      "chain.4.lead": "A system that acts must be bounded.",
+      "chain.4.desc": "Separation of data and instructions, least privilege, validated writes, Git history: the AI model is never the security boundary. On top of that we add SemGard, our semantic filter against prompt injection, as an extra detection layer.",
+      "chain.4.status": "Experimental · v0.1",
+      "chain.4.link": "GitHub repository",
+      "chain.5.title": "Share",
+      "chain.5.lead": "Publish what should be published, and nothing else.",
+      "chain.5.desc": "Each document states in its header what allows it to be published. Your content can feed a website, an online reader or, to go all the way, Biblioteko: our free, decentralised digital library project, where works are kept in Git repositories rather than in a database.",
+      "chain.5.status": "In development",
+      "chain.5.link": "GitHub repository",
+      "chain.6.title": "Learn",
+      "chain.6.lead": "Finding a note is no substitute for knowing.",
+      "chain.6.desc": "We are preparing computer-assisted learning that puts our course on learning into practice: retrieval questions drawn from your own content, and spaced reviews in a Leitner box automated by AI.",
+      "chain.6.status": "Coming soon",
+      "chain.6.link": "Read the course “Apprendre” (in French)",
+
+      "osia.label": "The foundation",
+      "osia.title": "OSIA: a knowledge base that belongs to you.",
+      "osia.intro": "OSIA (Obsidian Operating System IA) is the method we designed, teach, and build our knowledge bases on: an information system kept in plain text files, where people and AI agents work on the same documents.",
+      "stack.caption": "The six layers of OSIA",
+      "stack.6.name": "Intelligence",
+      "stack.6.what": "language model (LLM): reasoning, generation",
+      "stack.5.name": "Behaviour",
+      "stack.5.what": "agents, procedures (skills), processes (pipelines)",
+      "stack.4.name": "Access and context",
+      "stack.4.what": "tools given to the AI (harness), search, RAG",
+      "stack.3.name": "Data model",
+      "stack.3.what": "YAML headers: types, relations, states",
+      "stack.2.name": "Interface",
+      "stack.2.what": "Obsidian: reading, writing, views",
+      "stack.1.name": "Persistence",
+      "stack.1.what": "Markdown files, Git history",
+      "stack.note": "Built from the bottom up: data first, intelligence last.",
+      "osia.explainer": "The value of an OSIA base lies in no particular software: it is in your files, their metadata, their links and their history. Everything else can be replaced.",
+      "osia.check.1": "Markdown files readable without any particular software",
+      "osia.check.2": "Each file's header is both its description and its state memory",
+      "osia.check.3": "Everything keeps working without AI, and without Obsidian",
+      "osia.check.4": "Switch AI models without rebuilding the system",
+      "osia.check.5": "AI proposes, the system checks, the human decides",
+      "osia.course": "The full course is public: thirty chapters, three appendices and a tested reference implementation, under the CC BY-SA 4.0 licence.",
+      "osia.course.link": "Read the OSIA course (in French)",
 
       "method.label": "Method",
       "method.title": "A progressive, verifiable and sustainable approach.",
       "method.intro": "We validate value on a limited scope before scaling. Every step delivers a concrete, reusable result.",
-      "step.1.title": "Document audit",
-      "step.1.desc": "Analysis of your documents, existing tools, usage patterns, access rights and business constraints.",
-      "step.2.title": "Rapid prototype",
-      "step.2.desc": "Demonstrator on a limited corpus to measure value and refine the approach.",
-      "step.3.title": "Structuring",
-      "step.3.desc": "Conversion, OCR, Markdown, metadata, normalisation and index preparation.",
-      "step.4.title": "Knowledge engine",
-      "step.4.desc": "Hybrid search, embeddings, filters, reranking, access rights and AI assistant.",
-      "step.5.title": "Industrialisation",
-      "step.5.desc": "Automated ingestion, incremental enrichment, monitoring and maintenance.",
-      "step.6.title": "Training",
-      "step.6.desc": "Knowledge transfer to your teams to ensure adoption and evolution of the system.",
+      "step.1.title": "Collection audit",
+      "step.1.desc": "An inventory of your documents, tools, usage, access rights and confidentiality constraints.",
+      "step.2.title": "Prototype",
+      "step.2.desc": "A demonstrator on a limited corpus, to measure the value before committing the rest.",
+      "step.3.title": "Digitisation and structuring",
+      "step.3.desc": "OCR, conversion to Markdown, metadata schema, links: the knowledge base takes shape.",
+      "step.4.title": "Going live",
+      "step.4.desc": "Search, agents and automations connected to the base, with their rules and permissions.",
+      "step.5.title": "Security and sharing",
+      "step.5.desc": "Controlled writes, filtering of incoming content, publication of what should be shared.",
+      "step.6.title": "Handover",
+      "step.6.desc": "Training for your teams: the system is documented, and you can evolve it without us.",
 
       "tech.label": "Technologies",
       "tech.intro": "We adapt the solution to your confidentiality, cost, performance and maintainability constraints.",
-      "tag.1": "Local models", "tag.2": "Open source", "tag.3": "Docker / Kubernetes",
-      "tag.4": "Vector databases", "tag.5": "Elasticsearch / OpenSearch", "tag.6": "PostgreSQL",
-      "tag.7": "Plone", "tag.8": "Obsidian", "tag.9": "Multimodal OCR", "tag.10": "Sovereign solutions",
+      "tag.1": "Markdown + YAML", "tag.2": "Git", "tag.3": "Obsidian",
+      "tag.4": "Python", "tag.5": "AI agents", "tag.6": "Local models",
+      "tag.7": "Multimodal OCR", "tag.8": "Open source", "tag.9": "Plone", "tag.10": "Sovereign solutions",
+
+      "kr.label": "Our product · in development",
+      "kr.title": "Kunereti: deciding together, without a central server.",
+      "kr.intro": "Kunereti applies the OSIA foundation to a community that deliberates. From Nova-Ideo and KuneAgi, the free software for participatory innovation and democracy it descends from, it keeps everything that concerns people: small groups, short iterations, amendments, majority judgment. It replaces everything that concerns the machine: no platform to host, no database, no administrator to take at their word.",
+      "kr.1.title": "A community is a repository",
+      "kr.1.desc": "You join by scanning a QR code. Each working group has its own Git repository, and drafts stay in each member's own copy.",
+      "kr.2.title": "Everything is a signed file",
+      "kr.2.desc": "Contributions, amendments, ballots and messages are Markdown files signed by their author. The state of each one is written in its header.",
+      "kr.3.title": "Votes anyone can recount",
+      "kr.3.desc": "Majority judgment with seven grades, a list of voters frozen at opening, and a tally any member can rerun on their own device.",
+      "kr.4.title": "AI sorts, humans decide",
+      "kr.4.desc": "Agents group related ideas, summarise discussions and translate. They do not vote, and never sign on your behalf; everything also works without them.",
+      "kr.file.code": `<span class="k">---</span>
+<span class="k">type:</span> amendment
+<span class="k">title:</span> "Shift by one day"
+<span class="k">intention:</span> "Avoid Mondays."
+<span class="k">justification:</span> &gt;
+  Monday often falls on a return
+  from leave.
+<span class="k">workflows:</span>
+  <span class="k">amendment:</span> {state: <span class="highlight">to_vote</span>}
+<span class="k">signature:</span>
+  <span class="k">signer:</span> "member:01KA9P…"
+  <span class="k">value:</span> <span class="highlight">"ed25519:…"</span>
+<span class="k">---</span>
+Free-form explanation of the
+amendment, readable without tools.`,
+      "kr.file.note": "An amendment as it will be stored: the header for programs, the text for people.",
+      "kr.status.title": "Where the project stands",
+      "kr.status.desc": "The detailed design, an analysis in 51 usage scenarios and fourteen screen sketches are published in our notes (in French). Development is under way: no version is available yet. Like Nova-Ideo and KuneAgi, Kunereti will be free software, under the AGPL v3 licence. Until then, KuneAgi remains in service and continues to be maintained.",
+      "kr.link.1": "Read the presentation",
+      "kr.link.2": "Detailed design",
+      "kr.link.3": "Analysis and scenarios",
+      "kr.name": "The name comes from Esperanto: <em lang=\"eo\">kune</em>, “together”, and <em lang=\"eo\">reti</em>, built on <em lang=\"eo\">reto</em>, the network. To organise freely, to decide as equals.",
 
       "why.label": "Why Logikascium",
       "why.title": "Deep expertise, a realistic view of AI.",
       "why.intro": "Our know-how doesn't come from a recent AI trend — it is rooted in a long experience of collaborative portals, DMS, workflows and open source software.",
       "why.1.title": "Document expertise",
       "why.1.desc": "Since 2005: DMS, intranets, extranets, collaborative portals, Plone and business workflows.",
-      "why.2.title": "Open source culture",
-      "why.2.desc": "Understandable, auditable and maintainable architectures. No imposed dependency without justification.",
-      "why.3.title": "Business orientation",
-      "why.3.desc": "We start from your processes, users and constraints before choosing any tool.",
+      "why.2.title": "Free software culture",
+      "why.2.desc": "OSIA, SemGard and Biblioteko are published under free licences; Kunereti will be too. Nothing we deliver locks you in.",
+      "why.3.title": "Proven on our own collection",
+      "why.3.desc": "Our courses and public notes are kept and published with OSIA: the method is proven on our own collection before it is applied to yours.",
       "why.4.title": "Governed AI",
-      "why.4.desc": "Sourced, verifiable, traceable and governed answers — adapted to your internal rules.",
+      "why.4.desc": "Sourced answers, bounded agents, decisions that remain human.",
 
       "about.label": "About us",
-      "about.title": "Logikascium, software architecture and AI-powered documents.",
-      "about.intro": "Logikascium is a one-person company founded in 2023, extending the work of <a href=\"./PresentationEcreall.pdf\">Ecréall</a> (2005-2023) with AI capabilities. Based near Lille, France, it specialises in software architecture, complex document projects and the responsible integration of AI.",
+      "about.title": "Logikascium, software architecture and knowledge engineering.",
+      "about.intro": "Logikascium is a one-person company founded in 2023, extending the work of <a href=\"./PresentationEcreall.pdf\">Ecréall</a> (2005-2023) with AI capabilities. Based near Lille, France, it builds knowledge bases, develops Kunereti and maintains KuneAgi, derived from Nova-Ideo, whose code it took over in 2024.",
       "about.role": "Senior software architect · Founder",
       "about.bio1": "Over 25 years of experience designing and delivering complex software systems — from requirements gathering to production deployment. Expertise in agile project management, collaborative business process digitisation and automated document processing.",
       "about.bio2": "A productive engineer, I stay in touch with technical ground reality: GNU/Linux administration, Python development, web architectures, integration and team support.",
@@ -981,9 +1326,11 @@
       "notables.4": "Supervision of a CIFRE doctoral thesis",
       "notables.5": "Contributions to multiple open source projects",
       "notables.6": "Multimodal OCR and AI document pipelines (Biblioteko)",
+      "notables.7": "OSIA: a thirty-chapter course and reference implementation, under a free licence",
+      "notables.8": "SemGard, a semantic filter against prompt injection (experimental v0.1)",
 
       "notes.title": "Public notes",
-      "notes.lead": "My second brain, in the open. Courses, technical notes and essays are written in Markdown inside Obsidian, versioned in Git, then published as they are: what you read is the note itself, not a web adaptation.",
+      "notes.lead": "My second brain, in the open, and OSIA in production. Courses, technical notes and essays are written in Markdown inside Obsidian, versioned in Git, then published as they are once their metadata has been checked: what you read is the note itself, not a web adaptation. The notes are in French.",
       "notes.all.title": "Browse all notes",
       "notes.all.desc": "Full index, instant search and link-based navigation between notes.",
       "notes.courses.title": "Courses",
@@ -994,6 +1341,8 @@
       "notes.tech.desc": "Procedures, field reports and watch notes on the software ecosystem.",
       "notes.essays.title": "Essays",
       "notes.essays.desc": "Freer texts on computing, knowledge and their effects.",
+      "notes.kr.title": "Kunereti",
+      "notes.kr.desc": "Presentation, detailed design, an analysis in 51 scenarios and screen sketches of the project.",
       "notes.map.title": "Maps and diagrams",
       "notes.map.desc": "Thematic indexes and Excalidraw drawings rendered right in the browser.",
       "notes.repo.title": "The Git repository",
@@ -1002,10 +1351,11 @@
       "pub.1": "Courses taught since 2019, materials available on <a href=\"https://github.com/michaellaunay/NotesPubliques/tree/master/cours\">GitHub</a>.",
       "pub.2": "Article published in Linux Pratique on <a href=\"https://connect.ed-diamond.com/Linux-Pratique/lp-101/organiser-un-brainstorming-geant-l-innovation-participative-en-pratique-avec-nova-ideo\">Nova-Ideo</a>.",
       "pub.3": "LinkedIn article on the <a href=\"https://www.linkedin.com/pulse/ayez-un-deuxi%2525C3%2525A8me-cerveau-num%2525C3%2525A9rique-michael-launay\">digital second brain</a>.",
+      "pub.4": "Presentation text for <a href=\"./notes.html?note=kunereti%2Fpr%C3%A9sentation_kunereti.md\">Kunereti</a>, distributed participatory innovation (2026, in French).",
       "avail": "<strong style=\"color:#eef2f7;\">Availability:</strong> remote or on-site engagements, consulting and support, based near Lille, France.",
 
       "cta.title": "Your knowledge already exists.<br>Let's make it exploitable.",
-      "cta.sub": "Contact us to analyse your document corpus, identify priority use cases and build a first prototype.",
+      "cta.sub": "Contact us to review your collection, choose the links you need and build a first prototype, or to follow the development of Kunereti.",
       "cta.email": "Send an email",
       "cta.linkedin": "Connect on LinkedIn",
 
@@ -1015,8 +1365,8 @@
 
       "cv.file": "./CV_en.pdf",
       "html.lang": "en",
-      "meta.desc": "Logikascium transforms your documents, archives and DMS into AI-augmented knowledge bases: OCR, Markdown, RAG, semantic search, workflows and sourced document assistants.",
-      "title": "Logikascium – AI-augmented knowledge bases"
+      "meta.desc": "Logikascium covers the whole knowledge chain: digitisation, curation, organisation, translation, automation, AI use, security and sharing, on the open OSIA foundation (Markdown, Git). In development: Kunereti, distributed deliberation without a central server.",
+      "title": "Logikascium – The knowledge chain, OSIA and Kunereti"
     }
   };
 
