@@ -93,34 +93,15 @@
       background: rgba(248, 245, 239, 0.86) !important;
       backdrop-filter: blur(18px);
       border-bottom: 1px solid rgba(230, 223, 210, 0.78);
-      padding: 0.85rem 0;
+      padding: 0.35rem 0;
       position: sticky;
       top: 0;
       z-index: 1000;
     }
 
-    .navbar-brand {
-      display: inline-flex;
-      align-items: center;
-      gap: .65rem;
-      font-weight: 800;
-      color: var(--ink) !important;
-      letter-spacing: -0.04em;
-      font-size: 1.18rem;
-    }
-
-    .brand-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 11px;
-      display: inline-grid;
-      place-items: center;
-      color: #fff;
-      background: linear-gradient(145deg, #d28e46, #b8472d);
-      box-shadow: 0 10px 24px rgba(184,71,45,0.24);
-      font-family: var(--serif);
-      font-size: 1.1rem;
-    }
+    /* le logo horizontal porte le nom : pas de texte à côté */
+    .navbar-brand { display: inline-flex; align-items: center; padding: 0; }
+    .brand-logo { display: block; height: 64px; width: auto; }
 
     .nav-link {
       color: var(--muted) !important;
@@ -474,6 +455,7 @@
       section { padding: 4rem 0; }
       .hero-proof, .problem-grid, .why-grid, .methode-steps, .about-achievements, .kr-features { grid-template-columns: 1fr; }
       .about-profile { grid-template-columns: 1fr; padding: 1.3rem; }
+      .brand-logo { height: 50px; }
       .chain { --node: 42px; --node-top: .35rem; }
       .chain-item { column-gap: .8rem; }
       .chain-node { font-size: 1.15rem; }
@@ -492,7 +474,7 @@
 
   <nav class="navbar navbar-expand-lg" aria-label="Navigation principale">
     <div class="container">
-      <a class="navbar-brand" href="#"><span class="brand-mark">L</span> Logikascium</a>
+      <a class="navbar-brand" href="#"><img class="brand-logo" src="images/Logo_Logikascium_horizontal.svg" alt="Logikascium" width="186" height="64"></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
