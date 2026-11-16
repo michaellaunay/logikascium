@@ -30,11 +30,13 @@
 
   <style>
     :root {
-      --ink: #0d1117;
+      /* charte du logo, comme sur la page d'accueil */
+      --ink: #022b50;      /* bleu nuit : texte et titres */
       --paper: #f8f5ef;
       --paper-2: #fffdf8;
-      --accent: #b8472d;
-      --rule: rgba(13, 17, 23, .12);
+      --accent: #0064aa;   /* bleu : liens */
+      --ember: #e93410;    /* erreurs et dangers */
+      --rule: rgba(2, 43, 80, .14);
     }
     * { box-sizing: border-box; }
     body {
@@ -50,18 +52,15 @@
       background: var(--paper-2);
       border-bottom: 1px solid var(--rule);
     }
+    /* le logo est plus haut que l'ancienne marque en texte : les marges de la
+       barre se resserrent pour que l'en-tête, collé en haut, ne grandisse pas */
     header.np-entete .np-barre {
-      max-width: 1080px; margin: 0 auto; padding: .9rem 1.25rem;
-      display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
+      max-width: 1080px; margin: 0 auto; padding: .5rem 1.25rem;
+      display: flex; align-items: center; gap: .3rem 1.25rem; flex-wrap: wrap;
     }
-    .np-marque {
-      font-weight: 700; text-decoration: none; color: inherit; font-size: 1.05rem;
-    }
-    .np-marque span {
-      display: inline-grid; place-items: center;
-      width: 1.6rem; height: 1.6rem; margin-right: .4rem;
-      border-radius: 6px; background: var(--accent); color: #fff; font-size: .95rem;
-    }
+    .np-marque { display: block; line-height: 0; }
+    .np-marque img { display: block; height: 48px; width: auto; }
+    @media (max-width: 700px) { .np-marque img { height: 42px; } }
     header.np-entete nav a {
       text-decoration: none; color: inherit; opacity: .75; font-size: .95rem;
       margin-right: 1rem;
@@ -75,7 +74,7 @@
     .np-ariane { font-size: .9rem; opacity: .7; margin-bottom: 1.25rem; }
     .np-attente { opacity: .6; }
     .np-erreur {
-      border-left: 4px solid var(--accent); padding: .75rem 1.25rem; background: var(--paper-2);
+      border-left: 4px solid var(--ember); padding: .75rem 1.25rem; background: var(--paper-2);
     }
 
     /* fiche d'identité issue du frontmatter */
@@ -89,7 +88,7 @@
       font-size: .8rem; padding: .15rem .6rem; border-radius: 999px;
       border: 1px solid var(--rule); background: var(--paper);
     }
-    .np-theme { background: rgba(184, 71, 45, .08); border-color: rgba(184, 71, 45, .25); }
+    .np-theme { background: rgba(0, 100, 170, .08); border-color: rgba(0, 100, 170, .25); }
     .np-source { margin: .75rem 0 0; font-size: .9rem; opacity: .8; }
 
     .np-toc {
@@ -132,7 +131,7 @@
     .np-callout-note, .np-callout-quote { border-color: #6c757d; }
     .np-callout-abstract, .np-callout-summary, .np-callout-example { border-color: #6b5bb5; }
     .np-callout-warning, .np-callout-question, .np-callout-todo { border-color: #d98a1a; }
-    .np-callout-danger, .np-callout-error, .np-callout-failure, .np-callout-bug { border-color: #b8472d; }
+    .np-callout-danger, .np-callout-error, .np-callout-failure, .np-callout-bug { border-color: var(--ember); }
 
     /* transclusions : une note ou une section affichée dans une autre */
     .np-transclusion { margin: 1.25rem 0; padding-left: 1rem; border-left: 3px double var(--rule); }
@@ -150,7 +149,7 @@
       border: 1px solid var(--rule); border-radius: 12px;
     }
     .np-svg .np-noeud { cursor: pointer; }
-    .np-svg .np-noeud:hover { filter: drop-shadow(0 0 6px rgba(184, 71, 45, .55)); }
+    .np-svg .np-noeud:hover { filter: drop-shadow(0 0 6px rgba(255, 152, 12, .75)); }
 
     /* grands dessins : panneau défilant et zoom (voir adapterGrandDessin) */
     .np-dessin-defilant {
@@ -205,7 +204,7 @@
 <body>
   <header class="np-entete">
     <div class="np-barre">
-      <a class="np-marque" href="./index.html"><span>L</span>Logikascium</a>
+      <a class="np-marque" href="./index.html"><img src="images/Logo_Logikascium_horizontal.svg" alt="Logikascium" width="139" height="48"></a>
       <nav>
         <a href="./index.html">Accueil</a>
         <a href="./index.html#services">Prestation</a>
