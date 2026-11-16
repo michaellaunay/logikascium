@@ -784,6 +784,7 @@
     cours: "Cours", informatique: "Informatique", sciences: "Sciences",
     "réflexions": "Réflexions", "Idées et concepts": "Idées et concepts",
     meetup: "Meetups", templates: "Modèles", "Livres de cours": "Livres de cours",
+    kunereti: "Kunereti",
   };
 
   function trierNotes(a, b) {
